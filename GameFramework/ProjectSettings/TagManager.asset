@@ -13,7 +13,7 @@ TagManager:
   - UI
   - InvestigationObject
   - Ground
-  - Wall
+  - ClimbableWall
   - 
   - 
   - 

@@ -29,6 +29,11 @@ public class PlayerMovement : MonoBehaviour
     private bool isGrounded;
     private bool isWallClimbing;
 
+    // 현재 붙어 있는 벽
+    // -1 = 왼쪽
+    // +1 = 오른쪽
+    private int currentWallDirection;
+
     private float defaultGravityScale;
 
     public bool IsGrounded => isGrounded;
@@ -76,25 +81,24 @@ public class PlayerMovement : MonoBehaviour
 
     private void CheckGround()
     {
-        bool wasGrounded = isGrounded;
-
         isGrounded = Physics2D.OverlapCircle(
             groundCheck.position,
             groundCheckRadius,
             groundLayer
         );
 
-        // 착지했을 때 점프 횟수 초기화
-        if (!wasGrounded && isGrounded)
+        if (isGrounded)
         {
             jumpCount = 0;
         }
 
-        // 지상에서는 벽타기 종료
-        if (isGrounded && isWallClimbing)
-        {
-            StopWallClimb();
-        }
+        // 중요!
+        // 여기서 WallClimbing을 강제로 종료하지 않는다.
+        //
+        // 벽 + 바닥 모서리에서는
+        // Grounded = true
+        // Wall = true
+        // 가 동시에 될 수 있기 때문이다.
     }
 
     // =========================================================
@@ -105,6 +109,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isWallClimbing)
         {
+            // 벽에 붙어 있는 동안 좌우 이동 정지
             rb.linearVelocity = new Vector2(
                 0f,
                 rb.linearVelocity.y
@@ -138,6 +143,9 @@ public class PlayerMovement : MonoBehaviour
                 jumpForce
             );
 
+            // 공중에서 다시 더블 점프할 수 있도록
+            jumpCount = 0;
+
             return;
         }
 
@@ -159,37 +167,54 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleWallClimbState()
     {
-        // 지상에서는 벽타기 불가능
-        if (isGrounded)
-            return;
-
-        // 이미 벽타기 중이라면 계속 유지 가능한지 검사
+        // --------------------------------------------
+        // 이미 벽타기 중
+        // --------------------------------------------
         if (isWallClimbing)
         {
-            bool stillCanClimb =
-                wallDetector.HasWallOnDirection(moveInput);
-
-            if (!stillCanClimb)
+            // 현재 붙어 있는 벽이 사라짐
+            if (!wallDetector.HasWallOnDirection(currentWallDirection))
             {
                 StopWallClimb();
+                return;
+            }
+
+            // 벽에서 반대쪽으로 입력하면 벽에서 떨어짐
+            if (moveInput * currentWallDirection < -0.1f)
+            {
+                StopWallClimb();
+                return;
             }
 
             return;
         }
 
-        // 벽타기 시작 조건
-        bool hasWall =
-            wallDetector.HasWallOnDirection(moveInput);
+        // --------------------------------------------
+        // 벽타기 시작
+        // --------------------------------------------
 
-        if (!hasWall)
+        int wallDirection =
+            wallDetector.GetWallDirection(moveInput);
+
+        if (wallDirection == 0)
             return;
 
-        StartWallClimb();
+        // 지상에서는 W/S 입력으로 벽타기 시작
+        if (isGrounded)
+        {
+            if (verticalInput <= 0.1f)
+                return;
+        }
+
+        // 공중이면 자동으로 벽에 붙음
+        StartWallClimb(wallDirection);
     }
 
-    private void StartWallClimb()
+    private void StartWallClimb(int wallDirection)
     {
         isWallClimbing = true;
+
+        currentWallDirection = wallDirection;
 
         rb.gravityScale = 0f;
 
@@ -199,6 +224,8 @@ public class PlayerMovement : MonoBehaviour
     private void StopWallClimb()
     {
         isWallClimbing = false;
+
+        currentWallDirection = 0;
 
         rb.gravityScale = defaultGravityScale;
     }

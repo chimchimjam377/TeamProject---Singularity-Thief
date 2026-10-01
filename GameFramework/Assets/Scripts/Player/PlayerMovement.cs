@@ -21,6 +21,8 @@ public class PlayerMovement : MonoBehaviour
     [Header("Wall Climb")]
     [SerializeField] private float wallClimbSpeed = 4f;
 
+    [Header("State")]
+    [SerializeField] private PlayerState playerState;
     private float moveInput;
     private float verticalInput;
 
@@ -46,6 +48,9 @@ public class PlayerMovement : MonoBehaviour
 
         if (wallDetector == null)
             wallDetector = GetComponent<WallDetector>();
+
+        if (playerState == null)
+            playerState = GetComponent<PlayerState>();
 
         defaultGravityScale = rb.gravityScale;
     }

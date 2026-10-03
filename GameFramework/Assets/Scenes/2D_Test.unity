@@ -694,7 +694,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineFollow
   TrackerSettings:
-    BindingMode: 4
+    BindingMode: 3
     PositionDamping: {x: 1, y: 1, z: 1}
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
@@ -1573,6 +1573,8 @@ GameObject:
   - component: {fileID: 1472996563}
   - component: {fileID: 1472996565}
   - component: {fileID: 1472996566}
+  - component: {fileID: 1472996568}
+  - component: {fileID: 1472996567}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1686,6 +1688,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   wallClimbSpeed: 15
+  playerState: {fileID: 0}
 --- !u!114 &1472996566
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1704,6 +1707,37 @@ MonoBehaviour:
   climbableWallLayer:
     serializedVersion: 2
     m_Bits: 256
+--- !u!114 &1472996567
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1472996560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38fffa111e604c84c84cff3b46ecbd9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerState
+--- !u!114 &1472996568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1472996560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac6dfabef0ad37146834a6eb27f4c670, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerDodge
+  rb: {fileID: 1472996563}
+  playerState: {fileID: 1472996567}
+  playerMovement: {fileID: 1472996565}
+  dodgeDistance: 6
+  dodgeDuration: 0.2
+  invincibleStartTime: 0
+  invincibleEndTime: 0.15
 --- !u!1 &1537888921
 GameObject:
   m_ObjectHideFlags: 0

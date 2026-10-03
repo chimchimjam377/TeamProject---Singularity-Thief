@@ -112,6 +112,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleMovement()
     {
+
+        // 닷지 중에는 일반 이동이 PlayerDodge가 담당한다.
+        if (playerState.Is(PlayerStateType.Dodge))
+            return;
+
         if (isWallClimbing)
         {
             // 벽에 붙어 있는 동안 좌우 이동 정지
@@ -135,6 +140,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleJump()
     {
+        if (playerState.Is(PlayerStateType.Dodge))
+            return;
+
         if (!Input.GetKeyDown(KeyCode.Space))
             return;
 
@@ -219,11 +227,14 @@ public class PlayerMovement : MonoBehaviour
     {
         isWallClimbing = true;
 
-        currentWallDirection = wallDirection;
+        currentWallDirection =
+       wallDetector.GetWallDirection(moveInput);
 
         rb.gravityScale = 0f;
 
         rb.linearVelocity = Vector2.zero;
+
+        playerState.SetState(PlayerStateType.WallClimb);
     }
 
     private void StopWallClimb()
@@ -233,6 +244,11 @@ public class PlayerMovement : MonoBehaviour
         currentWallDirection = 0;
 
         rb.gravityScale = defaultGravityScale;
+       
+        if (playerState.Is(PlayerStateType.WallClimb))
+        {
+            playerState.SetState(PlayerStateType.Normal);
+        }
     }
 
     // =========================================================

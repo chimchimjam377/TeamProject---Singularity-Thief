@@ -30,4 +30,10 @@ public class PlayerState : MonoBehaviour
     {
         CurrentState = newState;
     }
+
+
+    public bool CanAttack()
+    {
+        return CurrentState == PlayerStateType.Normal;
+    }
 }

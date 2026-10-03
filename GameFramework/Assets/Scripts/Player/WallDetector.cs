@@ -16,8 +16,17 @@ public class WallDetector : MonoBehaviour
 
     public bool HasWall => IsLeftWall || IsRightWall;
 
+    private bool detectionEnabled = true;
+
     private void Update()
     {
+        if (!detectionEnabled)
+        {
+            IsLeftWall = false;
+            IsRightWall = false;
+            return;
+        }
+
         CheckWalls();
     }
 
@@ -42,6 +51,11 @@ public class WallDetector : MonoBehaviour
     // 방향에 해당하는 벽이 있는지 확인
     public bool HasWallOnDirection(int direction)
     {
+        if (!detectionEnabled)
+            return false;
+
+
+
         if (direction > 0)
             return IsRightWall;
 
@@ -73,6 +87,19 @@ public class WallDetector : MonoBehaviour
         // 양쪽 모두 벽이면 지정할 수 없음
         return 0;
     }
+
+    // WallCheck 전체 활성/비활성
+    public void SetDetectionEnabled(bool enabled)
+    {
+        detectionEnabled = enabled;
+
+        if (!enabled)
+        {
+            IsLeftWall = false;
+            IsRightWall = false;
+        }
+    }
+
 
     private void OnDrawGizmosSelected()
     {

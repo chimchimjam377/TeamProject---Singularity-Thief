@@ -260,6 +260,11 @@ public class PlayerMovement : MonoBehaviour
         if (!isWallClimbing)
             return;
 
+        if (playerState.Is(PlayerStateType.Dodge))
+            return;
+
+
+
         rb.linearVelocity = new Vector2(
             0f,
             verticalInput * wallClimbSpeed
@@ -269,6 +274,16 @@ public class PlayerMovement : MonoBehaviour
     // =========================================================
     // Gizmos
     // =========================================================
+
+
+    public void ForceStopWallClimb()
+    {
+        if (!isWallClimbing)
+            return;
+
+        StopWallClimb();
+    }
+
 
     private void OnDrawGizmosSelected()
     {

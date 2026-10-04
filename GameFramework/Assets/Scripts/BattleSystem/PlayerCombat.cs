@@ -7,6 +7,9 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] private PlayerState playerState;
     [SerializeField] private AttackHitbox attackHitbox;
 
+    [Header("Visual")]
+    [SerializeField] private Transform visualRoot;
+
     [Header("Attack Data")]
     [SerializeField] private AttackComboData comboData;
 
@@ -15,6 +18,10 @@ public class PlayerCombat : MonoBehaviour
     private bool isAttacking;
     private bool comboBuffered;
     private bool hitboxActive;
+
+    // 1 = 오른쪽
+    // -1 = 왼쪽
+    private int attackDirection = 1;
 
     private void Update()
     {
@@ -53,19 +60,44 @@ public class PlayerCombat : MonoBehaviour
         if (isAttacking)
             return false;
 
-        if (playerState.Is(PlayerStateType.Dodge))
-            return false;
+        return playerState.CanAttack();
+    }
 
-        if (playerState.Is(PlayerStateType.WallClimb))
-            return false;
+    // =========================================================
+    // Direction
+    // =========================================================
 
-        if (playerState.Is(PlayerStateType.Hit))
-            return false;
+    private void UpdateAttackDirection()
+    {
+        Camera mainCamera = Camera.main;
 
-        if (playerState.Is(PlayerStateType.Dead))
-            return false;
+        if (mainCamera == null)
+            return;
 
-        return true;
+        Vector3 mouseWorldPosition =
+            mainCamera.ScreenToWorldPoint(
+                Input.mousePosition
+            );
+
+        attackDirection =
+            mouseWorldPosition.x >= transform.position.x
+                ? 1
+                : -1;
+
+        UpdateVisualDirection();
+    }
+
+    private void UpdateVisualDirection()
+    {
+        if (visualRoot == null)
+            return;
+
+        Vector3 scale = visualRoot.localScale;
+
+        scale.x =
+            Mathf.Abs(scale.x) * attackDirection;
+
+        visualRoot.localScale = scale;
     }
 
     // =========================================================
@@ -85,12 +117,17 @@ public class PlayerCombat : MonoBehaviour
         AttackComboData.AttackStep attack =
             comboData.Attacks[currentAttackIndex];
 
+        // 공격 시작 시 마우스 방향 확인
+        UpdateAttackDirection();
+
         isAttacking = true;
         comboBuffered = false;
 
         SetHitbox(false);
 
-        playerState.SetState(PlayerStateType.Attack);
+        playerState.SetState(
+            PlayerStateType.Attack
+        );
 
         animator.Play(
             attack.animatorStateName,
@@ -111,13 +148,19 @@ public class PlayerCombat : MonoBehaviour
         AnimatorStateInfo stateInfo =
             animator.GetCurrentAnimatorStateInfo(0);
 
-        if (!stateInfo.IsName(attack.animatorStateName))
+        if (!stateInfo.IsName(
+            attack.animatorStateName))
+        {
             return;
+        }
 
         float normalizedTime =
             stateInfo.normalizedTime;
 
+        // -----------------------------------------
         // Hitbox ON
+        // -----------------------------------------
+
         if (!hitboxActive &&
             normalizedTime >= attack.hitboxStart &&
             normalizedTime < attack.hitboxEnd)
@@ -130,23 +173,32 @@ public class PlayerCombat : MonoBehaviour
             hitboxActive = true;
         }
 
+        // -----------------------------------------
+        // Hitbox Shape Update
+        // -----------------------------------------
+
+        if (hitboxActive)
+        {
+            UpdateHitboxShape(
+                attack,
+                normalizedTime
+            );
+        }
+
+        // -----------------------------------------
         // Hitbox OFF
+        // -----------------------------------------
+
         if (hitboxActive &&
             normalizedTime >= attack.hitboxEnd)
         {
             SetHitbox(false);
         }
 
-        // 다음 공격 입력
-        if (!comboBuffered &&
-            normalizedTime >= attack.comboInputStart &&
-            normalizedTime <= attack.comboInputEnd)
-        {
-            // 입력은 Update에서 이미 들어왔을 수 있으므로
-            // 별도의 입력 처리를 위해 여기서는 상태만 유지
-        }
+        // -----------------------------------------
+        // Animation End
+        // -----------------------------------------
 
-        // 애니메이션 종료
         if (normalizedTime >= 1f)
         {
             SetHitbox(false);
@@ -167,6 +219,43 @@ public class PlayerCombat : MonoBehaviour
     }
 
     // =========================================================
+    // Hitbox Shape
+    // =========================================================
+
+    private void UpdateHitboxShape(
+        AttackComboData.AttackStep attack,
+        float normalizedTime)
+    {
+        float width =
+            attack.hitboxWidth.Evaluate(
+                normalizedTime
+            );
+
+        float height =
+            attack.hitboxHeight.Evaluate(
+                normalizedTime
+            );
+
+        float offsetX =
+            attack.hitboxOffsetX.Evaluate(
+                normalizedTime
+            );
+
+        float offsetY =
+            attack.hitboxOffsetY.Evaluate(
+                normalizedTime
+            );
+
+        attackHitbox.SetShape(
+            width,
+            height,
+            offsetX,
+            offsetY,
+            attackDirection
+        );
+    }
+
+    // =========================================================
     // Combo
     // =========================================================
 
@@ -181,8 +270,11 @@ public class PlayerCombat : MonoBehaviour
         AnimatorStateInfo stateInfo =
             animator.GetCurrentAnimatorStateInfo(0);
 
-        if (!stateInfo.IsName(attack.animatorStateName))
+        if (!stateInfo.IsName(
+            attack.animatorStateName))
+        {
             return;
+        }
 
         float normalizedTime =
             stateInfo.normalizedTime;

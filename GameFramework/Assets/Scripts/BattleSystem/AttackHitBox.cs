@@ -3,17 +3,16 @@ using UnityEngine;
 
 public class AttackHitbox : MonoBehaviour
 {
-    private Collider2D hitboxCollider;
+    private BoxCollider2D hitboxCollider;
 
     private int damage;
-
     private GameObject attacker;
 
     private readonly HashSet<IDamageable> hitTargets = new();
 
     private void Awake()
     {
-        hitboxCollider = GetComponent<Collider2D>();
+        hitboxCollider = GetComponent<BoxCollider2D>();
 
         hitboxCollider.enabled = false;
     }
@@ -35,12 +34,32 @@ public class AttackHitbox : MonoBehaviour
         hitTargets.Clear();
     }
 
+    public void SetShape(
+        float width,
+        float height,
+        float offsetX,
+        float offsetY,
+        int direction)
+    {
+        hitboxCollider.size = new Vector2(
+            width,
+            height
+        );
+
+        // 왼쪽 공격이면 X 위치 반전
+        offsetX *= direction;
+
+        hitboxCollider.offset = new Vector2(
+            offsetX,
+            offsetY
+        );
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!hitboxCollider.enabled)
             return;
 
-        // 자기 자신은 무시
         if (other.gameObject == attacker)
             return;
 
@@ -50,7 +69,6 @@ public class AttackHitbox : MonoBehaviour
         if (damageable == null)
             return;
 
-        // 같은 공격에서 같은 대상에게 여러 번 데미지 방지
         if (hitTargets.Contains(damageable))
             return;
 

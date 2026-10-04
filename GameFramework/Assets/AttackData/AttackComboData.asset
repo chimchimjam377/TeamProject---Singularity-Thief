@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: AttackComboData
   m_EditorClassIdentifier: Assembly-CSharp::AttackComboData
   attacks:
-  - animatorStateName: 
-    hitboxStart: 0
-    hitboxEnd: 0
-    comboInputStart: 0
-    comboInputEnd: 0
-    damage: 0
+  - animatorStateName: Attack01
+    hitboxStart: 0.099
+    hitboxEnd: 0.424
+    comboInputStart: 0.186
+    comboInputEnd: 0.186
+    damage: 50

@@ -5,6 +5,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("References")]
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private WallDetector wallDetector;
+    [SerializeField] private Transform visual;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 7f;
@@ -23,6 +24,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("State")]
     [SerializeField] private PlayerState playerState;
+
     private float moveInput;
     private float verticalInput;
 
@@ -41,6 +43,11 @@ public class PlayerMovement : MonoBehaviour
     public bool IsGrounded => isGrounded;
     public bool IsWallClimbing => isWallClimbing;
 
+
+    // =========================================================
+    // Awake
+    // =========================================================
+
     private void Awake()
     {
         if (rb == null)
@@ -52,8 +59,17 @@ public class PlayerMovement : MonoBehaviour
         if (playerState == null)
             playerState = GetComponent<PlayerState>();
 
+        // Visual 자동 찾기
+        if (visual == null)
+            visual = transform.Find("Visual");
+
         defaultGravityScale = rb.gravityScale;
     }
+
+
+    // =========================================================
+    // Update
+    // =========================================================
 
     private void Update()
     {
@@ -64,11 +80,17 @@ public class PlayerMovement : MonoBehaviour
         HandleJump();
     }
 
+
+    // =========================================================
+    // FixedUpdate
+    // =========================================================
+
     private void FixedUpdate()
     {
         HandleMovement();
         HandleWallClimb();
     }
+
 
     // =========================================================
     // Input
@@ -79,6 +101,7 @@ public class PlayerMovement : MonoBehaviour
         moveInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
     }
+
 
     // =========================================================
     // Ground
@@ -106,16 +129,45 @@ public class PlayerMovement : MonoBehaviour
         // 가 동시에 될 수 있기 때문이다.
     }
 
+
     // =========================================================
     // Movement
     // =========================================================
 
     private void HandleMovement()
     {
-
         // 닷지 중에는 일반 이동이 PlayerDodge가 담당한다.
         if (playerState.Is(PlayerStateType.Dodge))
             return;
+
+
+        // =====================================================
+        // 플레이어 방향 전환
+        // =====================================================
+
+        if (moveInput > 0)
+        {
+            // 오른쪽
+            visual.localScale = new Vector3(
+                1f,
+                1f,
+                1f
+            );
+        }
+        else if (moveInput < 0)
+        {
+            // 왼쪽
+            visual.localScale = new Vector3(
+                -1f,
+                1f,
+                1f
+            );
+        }
+
+
+        // =====================================================
+        // Wall Climb
+        // =====================================================
 
         if (isWallClimbing)
         {
@@ -128,11 +180,17 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
+
+        // =====================================================
+        // 일반 이동
+        // =====================================================
+
         rb.linearVelocity = new Vector2(
             moveInput * moveSpeed,
             rb.linearVelocity.y
         );
     }
+
 
     // =========================================================
     // Jump
@@ -146,7 +204,11 @@ public class PlayerMovement : MonoBehaviour
         if (!Input.GetKeyDown(KeyCode.Space))
             return;
 
+
+        // =====================================================
         // 벽타기 중 점프
+        // =====================================================
+
         if (isWallClimbing)
         {
             StopWallClimb();
@@ -162,9 +224,14 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
+
+        // =====================================================
         // 더블 점프 횟수 초과
+        // =====================================================
+
         if (jumpCount >= maxJumpCount)
             return;
+
 
         rb.linearVelocity = new Vector2(
             rb.linearVelocity.x,
@@ -174,15 +241,17 @@ public class PlayerMovement : MonoBehaviour
         jumpCount++;
     }
 
+
     // =========================================================
     // Wall Climb State
     // =========================================================
 
     private void HandleWallClimbState()
     {
-        // --------------------------------------------
+        // =====================================================
         // 이미 벽타기 중
-        // --------------------------------------------
+        // =====================================================
+
         if (isWallClimbing)
         {
             // 현재 붙어 있는 벽이 사라짐
@@ -191,6 +260,7 @@ public class PlayerMovement : MonoBehaviour
                 StopWallClimb();
                 return;
             }
+
 
             // 벽에서 반대쪽으로 입력하면 벽에서 떨어짐
             if (moveInput * currentWallDirection < -0.1f)
@@ -202,15 +272,17 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        // --------------------------------------------
+
+        // =====================================================
         // 벽타기 시작
-        // --------------------------------------------
+        // =====================================================
 
         int wallDirection =
             wallDetector.GetWallDirection(moveInput);
 
         if (wallDirection == 0)
             return;
+
 
         // 지상에서는 W/S 입력으로 벽타기 시작
         if (isGrounded)
@@ -219,16 +291,22 @@ public class PlayerMovement : MonoBehaviour
                 return;
         }
 
+
         // 공중이면 자동으로 벽에 붙음
         StartWallClimb(wallDirection);
     }
+
+
+    // =========================================================
+    // Start Wall Climb
+    // =========================================================
 
     private void StartWallClimb(int wallDirection)
     {
         isWallClimbing = true;
 
         currentWallDirection =
-       wallDetector.GetWallDirection(moveInput);
+            wallDetector.GetWallDirection(moveInput);
 
         rb.gravityScale = 0f;
 
@@ -237,6 +315,11 @@ public class PlayerMovement : MonoBehaviour
         playerState.SetState(PlayerStateType.WallClimb);
     }
 
+
+    // =========================================================
+    // Stop Wall Climb
+    // =========================================================
+
     private void StopWallClimb()
     {
         isWallClimbing = false;
@@ -244,12 +327,13 @@ public class PlayerMovement : MonoBehaviour
         currentWallDirection = 0;
 
         rb.gravityScale = defaultGravityScale;
-       
+
         if (playerState.Is(PlayerStateType.WallClimb))
         {
             playerState.SetState(PlayerStateType.Normal);
         }
     }
+
 
     // =========================================================
     // Wall Climb Movement
@@ -264,17 +348,16 @@ public class PlayerMovement : MonoBehaviour
             return;
 
 
-
         rb.linearVelocity = new Vector2(
             0f,
             verticalInput * wallClimbSpeed
         );
     }
 
-    // =========================================================
-    // Gizmos
-    // =========================================================
 
+    // =========================================================
+    // Force Stop Wall Climb
+    // =========================================================
 
     public void ForceStopWallClimb()
     {
@@ -284,6 +367,10 @@ public class PlayerMovement : MonoBehaviour
         StopWallClimb();
     }
 
+
+    // =========================================================
+    // Gizmos
+    // =========================================================
 
     private void OnDrawGizmosSelected()
     {

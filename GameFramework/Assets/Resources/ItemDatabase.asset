@@ -12,4 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d53d66127f8f19c459438deb11d2bbbc, type: 3}
   m_Name: ItemDatabase
   m_EditorClassIdentifier: GameFramework::GameFramework.Data.ItemDatabase
-  items: []
+  items:
+  - {fileID: 11400000, guid: 19cb22dbe5ac157439f773dc126abb8f, type: 2}
+  - {fileID: 11400000, guid: a4755f6efe396494fbada7409f1ac18c, type: 2}

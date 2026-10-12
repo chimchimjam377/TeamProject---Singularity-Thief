@@ -12,6 +12,8 @@ public enum PlayerStateType
 
 public class PlayerState : MonoBehaviour
 {
+    public bool IsDead => CurrentState == PlayerStateType.Dead;
+
     public PlayerStateType CurrentState { get; private set; }
         = PlayerStateType.Normal;
 
@@ -28,6 +30,9 @@ public class PlayerState : MonoBehaviour
 
     public void SetState(PlayerStateType newState)
     {
+        if (IsDead)
+            return;
+
         CurrentState = newState;
     }
 

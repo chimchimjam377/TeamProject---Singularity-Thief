@@ -11706,7 +11706,7 @@ MonoBehaviour:
   playerState: {fileID: 963595132}
   attackHitbox: {fileID: 1757869664}
   visualRoot: {fileID: 703995649}
-  comboData: {fileID: 11400000, guid: 26118806cb6a2454f9bd46824d918914, type: 2}
+  comboData: {fileID: 11400000, guid: fb8ae1a210c2e0c45ac5778efca77315, type: 2}
 --- !u!114 &963595132
 MonoBehaviour:
   m_ObjectHideFlags: 0

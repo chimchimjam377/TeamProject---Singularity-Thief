@@ -6,36 +6,52 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private PlayerState playerState;
     [SerializeField] private AttackHitbox attackHitbox;
+    [SerializeField] private PlayerComboSequence comboSequence;
 
     [Header("Visual")]
     [SerializeField] private Transform visualRoot;
 
-    [Header("Attack Data")]
-    [SerializeField] private AttackComboData comboData;
+    private AttackDefinition currentAttack;
 
-    private int currentAttackIndex = -1;
+    private int currentSequenceIndex = -1;
+    private int attackDirection = 1;
 
     private bool isAttacking;
     private bool comboBuffered;
     private bool hitboxActive;
 
-    // 1 = 오른쪽
-    // -1 = 왼쪽
-    private int attackDirection = 1;
+    private void Awake()
+    {
+        if (animator == null)
+            animator = GetComponentInChildren<Animator>();
+
+        if (playerState == null)
+            playerState = GetComponent<PlayerState>();
+
+        if (comboSequence == null)
+            comboSequence = GetComponent<PlayerComboSequence>();
+
+        if (comboSequence != null)
+            comboSequence.Initialize();
+
+        if (attackHitbox == null)
+            Debug.LogError("AttackHitbox가 연결되지 않았습니다.", this);
+
+        if (animator == null)
+            Debug.LogError("Animator를 찾을 수 없습니다.", this);
+    }
 
     private void Update()
     {
         HandleInput();
 
         if (isAttacking)
-        {
             UpdateAttack();
-        }
     }
 
-    // =========================================================
+    // =====================================================
     // Input
-    // =========================================================
+    // =====================================================
 
     private void HandleInput()
     {
@@ -44,10 +60,8 @@ public class PlayerCombat : MonoBehaviour
 
         if (!isAttacking)
         {
-            if (CanStartAttack())
-            {
+            if (CanStartAttack() && comboSequence.Count > 0)
                 StartAttack(0);
-            }
 
             return;
         }
@@ -57,15 +71,13 @@ public class PlayerCombat : MonoBehaviour
 
     private bool CanStartAttack()
     {
-        if (isAttacking)
-            return false;
-
-        return playerState.CanAttack();
+        return playerState != null &&
+               playerState.Is(PlayerStateType.Normal);
     }
 
-    // =========================================================
+    // =====================================================
     // Direction
-    // =========================================================
+    // =====================================================
 
     private void UpdateAttackDirection()
     {
@@ -75,49 +87,42 @@ public class PlayerCombat : MonoBehaviour
             return;
 
         Vector3 mouseWorldPosition =
-            mainCamera.ScreenToWorldPoint(
-                Input.mousePosition
-            );
+            mainCamera.ScreenToWorldPoint(Input.mousePosition);
 
         attackDirection =
-            mouseWorldPosition.x >= transform.position.x
-                ? 1
-                : -1;
+            mouseWorldPosition.x >= transform.position.x ? 1 : -1;
 
-        UpdateVisualDirection();
-    }
-
-    private void UpdateVisualDirection()
-    {
         if (visualRoot == null)
             return;
 
         Vector3 scale = visualRoot.localScale;
 
-        scale.x =
-            Mathf.Abs(scale.x) * attackDirection;
+        scale.x = Mathf.Abs(scale.x) * attackDirection;
 
         visualRoot.localScale = scale;
     }
 
-    // =========================================================
+    // =====================================================
     // Start Attack
-    // =========================================================
+    // =====================================================
 
-    private void StartAttack(int attackIndex)
+    private void StartAttack(int sequenceIndex)
     {
-        if (comboData == null)
+        if (comboSequence == null || comboSequence.Count == 0)
             return;
 
-        if (comboData.Attacks.Count == 0)
+        if (sequenceIndex < 0 || sequenceIndex >= comboSequence.Count)
             return;
 
-        currentAttackIndex = attackIndex;
+        AttackDefinition attack =
+            comboSequence.GetAttackAt(sequenceIndex);
 
-        AttackComboData.AttackStep attack =
-            comboData.Attacks[currentAttackIndex];
+        if (attack == null)
+            return;
 
-        // 공격 시작 시 마우스 방향 확인
+        currentSequenceIndex = sequenceIndex;
+        currentAttack = attack;
+
         UpdateAttackDirection();
 
         isAttacking = true;
@@ -125,91 +130,65 @@ public class PlayerCombat : MonoBehaviour
 
         SetHitbox(false);
 
-        playerState.SetState(
-            PlayerStateType.Attack
-        );
+        playerState.SetState(PlayerStateType.Attack);
 
         animator.Play(
-            attack.animatorStateName,
+            currentAttack.AnimatorStateName,
             0,
             0f
         );
     }
 
-    // =========================================================
+    // =====================================================
     // Attack Update
-    // =========================================================
+    // =====================================================
 
     private void UpdateAttack()
     {
-        AttackComboData.AttackStep attack =
-            comboData.Attacks[currentAttackIndex];
+        if (currentAttack == null)
+            return;
 
         AnimatorStateInfo stateInfo =
             animator.GetCurrentAnimatorStateInfo(0);
 
-        if (!stateInfo.IsName(
-            attack.animatorStateName))
-        {
+        if (!stateInfo.IsName(currentAttack.AnimatorStateName))
             return;
-        }
 
-        float normalizedTime =
-            stateInfo.normalizedTime;
+        float normalizedTime = stateInfo.normalizedTime;
 
-        // -----------------------------------------
-        // Hitbox ON
-        // -----------------------------------------
-
-        if (!hitboxActive &&
-            normalizedTime >= attack.hitboxStart &&
-            normalizedTime < attack.hitboxEnd)
+        // 히트박스 활성 구간
+        if (normalizedTime >= currentAttack.HitboxStart &&
+            normalizedTime < currentAttack.HitboxEnd)
         {
-            attackHitbox.Activate(
-                attack.damage,
-                gameObject
-            );
+            if (!hitboxActive)
+            {
+                attackHitbox.Activate(
+                    currentAttack.Damage,
+                    gameObject
+                );
 
-            hitboxActive = true;
+                hitboxActive = true;
+            }
+
+            UpdateHitboxShape(normalizedTime);
         }
-
-        // -----------------------------------------
-        // Hitbox Shape Update
-        // -----------------------------------------
-
-        if (hitboxActive)
-        {
-            UpdateHitboxShape(
-                attack,
-                normalizedTime
-            );
-        }
-
-        // -----------------------------------------
-        // Hitbox OFF
-        // -----------------------------------------
-
-        if (hitboxActive &&
-            normalizedTime >= attack.hitboxEnd)
+        else if (hitboxActive &&
+                 normalizedTime >= currentAttack.HitboxEnd)
         {
             SetHitbox(false);
         }
 
-        // -----------------------------------------
-        // Animation End
-        // -----------------------------------------
-
+        // 애니메이션 종료
         if (normalizedTime >= 1f)
         {
             SetHitbox(false);
 
-            if (comboBuffered)
+            if (comboBuffered && comboSequence.Count > 0)
             {
-                int nextAttack =
-                    (currentAttackIndex + 1)
-                    % comboData.Attacks.Count;
+                int nextIndex =
+                    (currentSequenceIndex + 1) % comboSequence.Count;
 
-                StartAttack(nextAttack);
+                StartAttack(nextIndex);
             }
             else
             {
@@ -218,33 +197,29 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
-    // =========================================================
+    // =====================================================
     // Hitbox Shape
-    // =========================================================
+    // =====================================================
 
-    private void UpdateHitboxShape(
-        AttackComboData.AttackStep attack,
-        float normalizedTime)
+    private void UpdateHitboxShape(float normalizedTime)
     {
+        float progress = Mathf.InverseLerp(
+            currentAttack.HitboxStart,
+            currentAttack.HitboxEnd,
+            normalizedTime
+        );
+
         float width =
-            attack.hitboxWidth.Evaluate(
-                normalizedTime
-            );
+            currentAttack.HitboxWidth.Evaluate(progress);
 
         float height =
-            attack.hitboxHeight.Evaluate(
-                normalizedTime
-            );
+            currentAttack.HitboxHeight.Evaluate(progress);
 
         float offsetX =
-            attack.hitboxOffsetX.Evaluate(
-                normalizedTime
-            );
+            currentAttack.HitboxOffsetX.Evaluate(progress);
 
         float offsetY =
-            attack.hitboxOffsetY.Evaluate(
-                normalizedTime
-            );
+            currentAttack.HitboxOffsetY.Evaluate(progress);
 
         attackHitbox.SetShape(
             width,
@@ -255,40 +230,33 @@ public class PlayerCombat : MonoBehaviour
         );
     }
 
-    // =========================================================
-    // Combo
-    // =========================================================
+    // =====================================================
+    // Combo Buffer
+    // =====================================================
 
     private void TryQueueNextAttack()
     {
-        if (currentAttackIndex < 0)
+        if (currentAttack == null)
             return;
-
-        AttackComboData.AttackStep attack =
-            comboData.Attacks[currentAttackIndex];
 
         AnimatorStateInfo stateInfo =
             animator.GetCurrentAnimatorStateInfo(0);
 
-        if (!stateInfo.IsName(
-            attack.animatorStateName))
-        {
+        if (!stateInfo.IsName(currentAttack.AnimatorStateName))
             return;
-        }
 
-        float normalizedTime =
-            stateInfo.normalizedTime;
+        float normalizedTime = stateInfo.normalizedTime;
 
-        if (normalizedTime >= attack.comboInputStart &&
-            normalizedTime <= attack.comboInputEnd)
+        if (normalizedTime >= currentAttack.ComboInputStart &&
+            normalizedTime <= currentAttack.ComboInputEnd)
         {
             comboBuffered = true;
         }
     }
 
-    // =========================================================
+    // =====================================================
     // Hitbox
-    // =========================================================
+    // =====================================================
 
     private void SetHitbox(bool active)
     {
@@ -297,13 +265,10 @@ public class PlayerCombat : MonoBehaviour
         if (attackHitbox == null)
             return;
 
-        if (active)
+        if (active && currentAttack != null)
         {
-            AttackComboData.AttackStep attack =
-                comboData.Attacks[currentAttackIndex];
-
             attackHitbox.Activate(
-                attack.damage,
+                currentAttack.Damage,
                 gameObject
             );
         }
@@ -313,9 +278,9 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
-    // =========================================================
-    // End
-    // =========================================================
+    // =====================================================
+    // End Attack
+    // =====================================================
 
     private void EndAttack()
     {
@@ -323,11 +288,10 @@ public class PlayerCombat : MonoBehaviour
 
         isAttacking = false;
         comboBuffered = false;
-        currentAttackIndex = -1;
+        currentSequenceIndex = -1;
+        currentAttack = null;
 
-        playerState.SetState(
-            PlayerStateType.Normal
-        );
+        playerState.SetState(PlayerStateType.Normal);
 
         animator.Play("Idle");
     }

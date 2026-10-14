@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 221da9984b7a90c40ade6eb0c47eb4e1, type: 3}
+  m_Name: DefaultComboSequence
+  m_EditorClassIdentifier: Assembly-CSharp::ComboSequenceData
+  defaultAttacks:
+  - {fileID: 11400000, guid: f09b93fda1af827488c78c593a6f1d1c, type: 2}
+  - {fileID: 11400000, guid: 9cfbc44dd81f9e445a8839933ee3eefc, type: 2}

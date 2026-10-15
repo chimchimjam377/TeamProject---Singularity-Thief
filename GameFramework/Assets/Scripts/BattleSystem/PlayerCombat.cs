@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class PlayerCombat : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] private Transform visualRoot;
 
     private AttackDefinition currentAttack;
+
+
 
     private int currentSequenceIndex = -1;
     private int attackDirection = 1;
@@ -58,14 +61,28 @@ public class PlayerCombat : MonoBehaviour
         if (!Input.GetMouseButtonDown(0))
             return;
 
+        // UI 위에서 클릭했다면 전투 입력으로 처리하지 않는다.
+        if (EventSystem.current != null &&
+            EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+
+        if (comboSequence == null)
+            return;
+
+        // 공격 중이 아니라면 첫 번째 공격부터 시작한다.
         if (!isAttacking)
         {
             if (CanStartAttack() && comboSequence.Count > 0)
+            {
                 StartAttack(0);
+            }
 
             return;
         }
 
+        // 공격 중이라면 기존 콤보 입력 예약을 유지한다.
         TryQueueNextAttack();
     }
 

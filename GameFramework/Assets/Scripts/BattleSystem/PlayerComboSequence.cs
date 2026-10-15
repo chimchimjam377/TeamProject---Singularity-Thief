@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class PlayerComboSequence : MonoBehaviour
 {
-    [Header("Default Combo")]
+    [Header("기본 콤보")]
     [SerializeField]
     private ComboSequenceData defaultSequence;
 
-    [Header("Slot Settings")]
-    [Min(1)]
-    [SerializeField] private int initialSlotCapacity = 3;
+    [Header("슬롯 용량")]
+    [SerializeField,Min(1)]
+    private int initialSlotCapacity = 3;
 
     [Min(1)]
     [SerializeField] private int maximumSlotCapacity = 12;
@@ -28,6 +28,10 @@ public class PlayerComboSequence : MonoBehaviour
 
     public int EmptySlotCount =>
         Mathf.Max(0, slotCapacity - sequence.Count);
+
+    // UI에서 최대 슬롯 수용량을 확인하기 위한 프로퍼티
+    public int MaximumSlotCapacity =>
+        Mathf.Max(1, maximumSlotCapacity);
 
     public event Action OnSequenceChanged;
 
@@ -169,6 +173,8 @@ public class PlayerComboSequence : MonoBehaviour
     // 기본 콤보로 복구한다.
     public void ResetToDefault()
     {
+        int maxCapacity = Mathf.Max(1, maximumSlotCapacity);
+
         sequence.Clear();
 
         if (defaultSequence != null)
@@ -176,19 +182,21 @@ public class PlayerComboSequence : MonoBehaviour
             foreach (AttackDefinition attack
                      in defaultSequence.DefaultAttacks)
             {
-                if (attack != null)
-                    sequence.Add(attack);
+                if (attack == null)
+                    continue;
+
+                if (sequence.Count >= maxCapacity)
+                    break;
+
+                sequence.Add(attack);
             }
         }
 
         slotCapacity = Mathf.Clamp(
             Mathf.Max(initialSlotCapacity, sequence.Count),
             1,
-            Mathf.Max(1, maximumSlotCapacity)
+            maxCapacity
         );
-
-        // 기본 콤보가 최대 용량보다 길 경우 용량을 보정한다.
-        slotCapacity = Mathf.Max(slotCapacity, sequence.Count);
 
         NotifyChanged();
     }

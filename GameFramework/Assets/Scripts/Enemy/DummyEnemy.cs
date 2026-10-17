@@ -74,6 +74,14 @@ public class DummyEnemy : MonoBehaviour, IDamageable
 
 
     // =========================================================
+    // Drop Item (새로 추가됨)
+    // =========================================================
+
+    [Header("Drop Item")]
+    [SerializeField] private GameObject dropItemPrefab; // 죽을 때 떨어뜨릴 아이템 프리팹
+
+
+    // =========================================================
     // State
     // =========================================================
 
@@ -459,22 +467,22 @@ public class DummyEnemy : MonoBehaviour, IDamageable
 
 
     // =========================================================
-    // Die
+    // Die (수정됨)
     // =========================================================
 
     private void Die()
     {
         isDead = true;
 
+        rb.linearVelocity = Vector2.zero;
 
-        rb.linearVelocity =
-            Vector2.zero;
+        Debug.Log("Dummy Dead");
 
-
-        Debug.Log(
-            "Dummy Dead"
-        );
-
+        // 아이템 드롭 로직 추가
+        if (dropItemPrefab != null)
+        {
+            Instantiate(dropItemPrefab, transform.position, Quaternion.identity);
+        }
 
         // 테스트용
         gameObject.SetActive(false);
@@ -491,22 +499,17 @@ public class DummyEnemy : MonoBehaviour, IDamageable
         // 순찰 범위
         // -----------------------------------------------------
 
-        Gizmos.color =
-            Color.yellow;
-
+        Gizmos.color = Color.yellow;
 
         Vector3 startPosition;
 
-
         if (Application.isPlaying)
         {
-            startPosition =
-                patrolStartPosition;
+            startPosition = patrolStartPosition;
         }
         else
         {
-            startPosition =
-                transform.position;
+            startPosition = transform.position;
         }
 
 
@@ -520,31 +523,16 @@ public class DummyEnemy : MonoBehaviour, IDamageable
             Vector3.right * patrolDistance;
 
 
-        Gizmos.DrawLine(
-            left,
-            right
-        );
-
-
-        Gizmos.DrawWireSphere(
-            left,
-            0.2f
-        );
-
-
-        Gizmos.DrawWireSphere(
-            right,
-            0.2f
-        );
+        Gizmos.DrawLine(left, right);
+        Gizmos.DrawWireSphere(left, 0.2f);
+        Gizmos.DrawWireSphere(right, 0.2f);
 
 
         // -----------------------------------------------------
         // 감지 범위
         // -----------------------------------------------------
 
-        Gizmos.color =
-            Color.red;
-
+        Gizmos.color = Color.red;
 
         Gizmos.DrawWireSphere(
             transform.position,
@@ -556,9 +544,7 @@ public class DummyEnemy : MonoBehaviour, IDamageable
         // 추적 해제 범위
         // -----------------------------------------------------
 
-        Gizmos.color =
-            Color.magenta;
-
+        Gizmos.color = Color.magenta;
 
         Gizmos.DrawWireSphere(
             transform.position,
@@ -570,12 +556,9 @@ public class DummyEnemy : MonoBehaviour, IDamageable
         // 시야
         // -----------------------------------------------------
 
-        if (eyePoint != null &&
-            player != null)
+        if (eyePoint != null && player != null)
         {
-            Gizmos.color =
-                Color.cyan;
-
+            Gizmos.color = Color.cyan;
 
             Gizmos.DrawLine(
                 eyePoint.position,

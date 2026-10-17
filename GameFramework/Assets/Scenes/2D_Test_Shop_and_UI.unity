@@ -11626,6 +11626,7 @@ GameObject:
   - component: {fileID: 963595138}
   - component: {fileID: 963595137}
   - component: {fileID: 963595139}
+  - component: {fileID: 963595140}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -11705,8 +11706,8 @@ MonoBehaviour:
   animator: {fileID: 957787633}
   playerState: {fileID: 963595132}
   attackHitbox: {fileID: 1757869664}
+  comboSequence: {fileID: 963595140}
   visualRoot: {fileID: 703995649}
-  comboData: {fileID: 11400000, guid: fb8ae1a210c2e0c45ac5778efca77315, type: 2}
 --- !u!114 &963595132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11852,6 +11853,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerUpgrades
   currencyItemId: Ba
   upgrades: []
+--- !u!114 &963595140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963595128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f83868d4435b8804b9a6271d936882ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerComboSequence
+  defaultSequence: {fileID: 11400000, guid: 95aeba01351ad45449984aad5c3cf912, type: 2}
+  initialSlotCapacity: 3
+  maximumSlotCapacity: 12
 --- !u!1 &1104659257
 GameObject:
   m_ObjectHideFlags: 0
@@ -77080,6 +77096,7 @@ MonoBehaviour:
     m_Bits: 0
   eyePoint: {fileID: 963595129}
   visual: {fileID: 1863336012}
+  dropItemPrefab: {fileID: 4419807318943786107, guid: ae0a8cc9e7d0b444895bdc8953a24095, type: 3}
 --- !u!4 &1988579208
 Transform:
   m_ObjectHideFlags: 0

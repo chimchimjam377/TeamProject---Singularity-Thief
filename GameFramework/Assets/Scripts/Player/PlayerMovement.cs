@@ -6,6 +6,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private WallDetector wallDetector;
     [SerializeField] private Transform visual;
+    [SerializeField] private Animator animator; // 애니메이터 추가
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 7f;
@@ -40,6 +41,8 @@ public class PlayerMovement : MonoBehaviour
 
     private float defaultGravityScale;
 
+    private string currentAnimState; // 현재 재생 중인 애니메이션
+
     public bool IsGrounded => isGrounded;
     public bool IsWallClimbing => isWallClimbing;
 
@@ -63,6 +66,10 @@ public class PlayerMovement : MonoBehaviour
         if (visual == null)
             visual = transform.Find("Visual");
 
+        // 애니메이터가 비어있으면 Visual에서 가져옴
+        if (animator == null && visual != null)
+            animator = visual.GetComponent<Animator>();
+
         defaultGravityScale = rb.gravityScale;
     }
 
@@ -78,6 +85,8 @@ public class PlayerMovement : MonoBehaviour
         CheckGround();
         HandleWallClimbState();
         HandleJump();
+
+        UpdateAnimations(); // 애니메이션 상태 업데이트 호출
     }
 
 
@@ -365,6 +374,55 @@ public class PlayerMovement : MonoBehaviour
             return;
 
         StopWallClimb();
+    }
+
+
+    // =========================================================
+    // Animations (새로 추가된 로직)
+    // =========================================================
+
+    private void UpdateAnimations()
+    {
+        if (animator == null)
+            return;
+
+        if (!playerState.Is(PlayerStateType.Normal))
+        {
+            currentAnimState = "";
+            return;
+        }
+
+        if (isGrounded)
+        {
+            if (Mathf.Abs(moveInput) > 0.1f || Mathf.Abs(rb.linearVelocity.x) > 0.1f)
+            {
+                ChangeAnimationState("Walk");
+            }
+            else
+            {
+                ChangeAnimationState("Idle");
+            }
+        }
+        else
+        {
+            if (rb.linearVelocity.y > 0.1f)
+            {
+                ChangeAnimationState("JumpUP");
+            }
+            else if (rb.linearVelocity.y < -0.1f)
+            {
+                ChangeAnimationState("Down");
+            }
+        }
+    }
+
+    private void ChangeAnimationState(string newState)
+    {
+        if (currentAnimState == newState)
+            return;
+
+        animator.Play(newState);
+        currentAnimState = newState;
     }
 
 

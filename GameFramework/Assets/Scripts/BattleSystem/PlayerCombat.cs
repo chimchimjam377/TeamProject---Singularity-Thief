@@ -8,6 +8,7 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] private PlayerState playerState;
     [SerializeField] private AttackHitbox attackHitbox;
     [SerializeField] private PlayerComboSequence comboSequence;
+    [SerializeField] private AttackMovementController attackMovementController;
 
     [Header("Visual")]
     [SerializeField] private Transform visualRoot;
@@ -33,6 +34,10 @@ public class PlayerCombat : MonoBehaviour
 
         if (comboSequence == null)
             comboSequence = GetComponent<PlayerComboSequence>();
+
+        if (attackMovementController == null)
+            attackMovementController =
+                GetComponent<AttackMovementController>();
 
         if (comboSequence != null)
             comboSequence.Initialize();
@@ -142,6 +147,16 @@ public class PlayerCombat : MonoBehaviour
 
         UpdateAttackDirection();
 
+        // 현재 공격의 이동 설정 전달
+        if (attackMovementController != null)
+        {
+            attackMovementController.BeginAttack(
+                currentAttack,
+                attackDirection
+            );
+        }
+
+
         isAttacking = true;
         comboBuffered = false;
 
@@ -172,6 +187,14 @@ public class PlayerCombat : MonoBehaviour
             return;
 
         float normalizedTime = stateInfo.normalizedTime;
+
+        // 공격 애니메이션에 맞춰 공격 이동 갱신
+        if (attackMovementController != null)
+        {
+            attackMovementController.UpdateAttackProgress(
+                normalizedTime
+            );
+        }
 
         // 히트박스 활성 구간
         if (normalizedTime >= currentAttack.HitboxStart &&
@@ -301,6 +324,9 @@ public class PlayerCombat : MonoBehaviour
 
     private void EndAttack()
     {
+        if (attackMovementController != null)
+            attackMovementController.CancelAttackMovement();
+
         SetHitbox(false);
 
         isAttacking = false;
@@ -312,4 +338,11 @@ public class PlayerCombat : MonoBehaviour
 
         animator.Play("Idle");
     }
+
+    private void OnDisable()
+    {
+        if (attackMovementController != null)
+            attackMovementController.CancelAttackMovement();
+    }
+
 }

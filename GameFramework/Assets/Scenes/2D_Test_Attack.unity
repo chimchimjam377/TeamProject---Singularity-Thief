@@ -13119,6 +13119,7 @@ GameObject:
   - component: {fileID: 963595137}
   - component: {fileID: 963595139}
   - component: {fileID: 963595140}
+  - component: {fileID: 963595141}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -13199,6 +13200,7 @@ MonoBehaviour:
   playerState: {fileID: 963595132}
   attackHitbox: {fileID: 1757869664}
   comboSequence: {fileID: 963595140}
+  attackMovementController: {fileID: 0}
   visualRoot: {fileID: 703995649}
 --- !u!114 &963595132
 MonoBehaviour:
@@ -13264,6 +13266,7 @@ MonoBehaviour:
   rb: {fileID: 963595136}
   wallDetector: {fileID: 963595134}
   visual: {fileID: 703995649}
+  animator: {fileID: 0}
   moveSpeed: 7
   jumpForce: 14
   maxJumpCount: 2
@@ -13360,6 +13363,21 @@ MonoBehaviour:
   defaultSequence: {fileID: 11400000, guid: 95aeba01351ad45449984aad5c3cf912, type: 2}
   initialSlotCapacity: 3
   maximumSlotCapacity: 12
+--- !u!114 &963595141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963595128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fccb42432f6fcc42b9e3d260342eda2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AttackMovementController
+  rb: {fileID: 963595136}
+  playerMovement: {fileID: 963595135}
+  bodyCollider: {fileID: 963595130}
 --- !u!1 &1002289929
 GameObject:
   m_ObjectHideFlags: 0
@@ -79981,6 +79999,7 @@ MonoBehaviour:
     m_Bits: 0
   eyePoint: {fileID: 963595129}
   visual: {fileID: 1863336012}
+  dropItemPrefab: {fileID: 0}
 --- !u!4 &1988579208
 Transform:
   m_ObjectHideFlags: 0

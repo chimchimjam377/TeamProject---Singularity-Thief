@@ -32,6 +32,9 @@ public class PlayerMovement : MonoBehaviour
     private int jumpCount;
 
     private bool isGrounded;
+
+    // 공격 전용 이동이 일반 이동을 제어 중인지 여부
+    private bool attackMovementActive;
     private bool isWallClimbing;
 
     // 현재 붙어 있는 벽
@@ -45,6 +48,11 @@ public class PlayerMovement : MonoBehaviour
 
     public bool IsGrounded => isGrounded;
     public bool IsWallClimbing => isWallClimbing;
+
+    public void SetAttackMovementActive(bool active)
+    {
+        attackMovementActive = active;
+    }
 
 
     // =========================================================
@@ -146,8 +154,11 @@ public class PlayerMovement : MonoBehaviour
     private void HandleMovement()
     {
         // 닷지 중에는 일반 이동이 PlayerDodge가 담당한다.
-        if (playerState.Is(PlayerStateType.Dodge))
+        if (playerState.Is(PlayerStateType.Dodge) ||
+            attackMovementActive)
+        {
             return;
+        }
 
 
         // =====================================================
@@ -263,6 +274,13 @@ public class PlayerMovement : MonoBehaviour
 
         if (isWallClimbing)
         {
+            // 공격 중에는 새로운 벽타기 상태로 진입하지 않는다.
+            if (playerState != null &&
+                playerState.Is(PlayerStateType.Attack))
+            {
+                return;
+            }
+
             // 현재 붙어 있는 벽이 사라짐
             if (!wallDetector.HasWallOnDirection(currentWallDirection))
             {
@@ -350,6 +368,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleWallClimb()
     {
+        if (attackMovementActive)
+            return;
+
         if (!isWallClimbing)
             return;
 

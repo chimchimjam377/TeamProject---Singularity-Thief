@@ -12,6 +12,8 @@ public class PlayerStats : MonoBehaviour, IDamageable
     public int MaxHealth => maxHealth;
     public int CurrentHealth => currentHealth;
 
+    public int SoundPower { get; private set; } = 10; // 소리 파워를 외부에서 설정할 수 있도록 프로퍼티 추가
+
     private bool isDead;
     private PlayerState playerState;
 

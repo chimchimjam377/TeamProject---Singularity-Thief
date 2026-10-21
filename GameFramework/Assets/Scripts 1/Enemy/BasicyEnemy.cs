@@ -16,7 +16,7 @@ public class BasicEnemy : MonoBehaviour
     public float moveSpeed = 1.5f;
 
     private Transform playerTransform;
-    private Player playerScript;
+    private PlayerStats playerScript;
     private bool isPlayerDetected = false;
 
     private void Update()
@@ -50,12 +50,12 @@ public class BasicEnemy : MonoBehaviour
             GameObject playerObj = GameObject.FindWithTag("Player");
             if (playerObj != null)
             {
-                playerScript = playerObj.GetComponent<Player>();
+                playerScript = playerObj.GetComponent<PlayerStats>();
             }
         }
 
         // 플레이어의 소리 파워에 따라 경계 범위를 동적으로 확장
-        float currentSoundPower = (playerScript != null) ? playerScript.soundPower : 0f;
+        float currentSoundPower = (playerScript != null) ? playerScript.SoundPower : 0f;
         float currentAlertRadius = baseAlertRadius + currentSoundPower;
 
         Collider2D overlapCollider = Physics2D.OverlapCircle(transform.position, currentAlertRadius, playerLayer);
@@ -95,7 +95,7 @@ public class BasicEnemy : MonoBehaviour
         if (playerScript != null)
         {
             Gizmos.color = Color.orange;
-            Gizmos.DrawWireSphere(transform.position, baseAlertRadius + playerScript.soundPower);
+            Gizmos.DrawWireSphere(transform.position, baseAlertRadius + playerScript.SoundPower);
         }
     }
 }

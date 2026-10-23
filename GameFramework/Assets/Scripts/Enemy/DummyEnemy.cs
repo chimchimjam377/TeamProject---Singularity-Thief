@@ -5,94 +5,75 @@ public class DummyEnemy : MonoBehaviour, IDamageable
     // =========================================================
     // Health
     // =========================================================
-
     [Header("Health")]
     [SerializeField] private int maxHealth = 100;
-
     private int currentHealth;
 
     public int CurrentHealth => currentHealth;
     public int MaxHealth => maxHealth;
 
-
     // =========================================================
     // Movement
     // =========================================================
-
     [Header("Movement")]
     [SerializeField] private Rigidbody2D rb;
-
     [SerializeField] private float patrolSpeed = 2f;
-
     [SerializeField] private float chaseSpeed = 4f;
-
 
     // =========================================================
     // Patrol
     // =========================================================
-
     [Header("Patrol")]
     [SerializeField] private float patrolDistance = 5f;
-
     private Vector2 patrolStartPosition;
-
-    // 1 = 오른쪽
-    // -1 = 왼쪽
     private int patrolDirection = 1;
-
 
     // =========================================================
     // Player Detection
     // =========================================================
-
     [Header("Player Detection")]
     [SerializeField] private Transform player;
-
     [SerializeField] private float detectionRange = 8f;
-
-    [SerializeField] private float loseTargetRange = 12f;
-
+    // 추적 해제 범위(loseTargetRange)는 무한 추적을 위해 사용하지 않게 됨
 
     // =========================================================
     // Line Of Sight
     // =========================================================
-
     [Header("Line Of Sight")]
     [SerializeField] private bool requireLineOfSight = true;
-
     [SerializeField] private LayerMask obstacleLayer;
-
     [SerializeField] private Transform eyePoint;
 
+    // =========================================================
+    // Attack (새로 추가됨)
+    // =========================================================
+    [Header("Attack")]
+    [SerializeField] private float attackRange = 1.5f;       // 공격 사거리
+    [SerializeField] private int attackDamage = 10;          // 공격 데미지
+    [SerializeField] private float attackCooldown = 2f;      // 공격 쿨타임
+    [SerializeField] private float attackDuration = 0.5f;    // 공격(정지) 지속 시간
+    [SerializeField] private Transform attackPoint;          // 히트박스 중심점 (자식 오브젝트로 생성 필요)
+    [SerializeField] private float attackRadius = 0.5f;      // 히트박스 반경
+    [SerializeField] private LayerMask playerLayer;          // 플레이어 레이어 (Player 지정 필요)
+
+    private float lastAttackTime = -999f;
+    private float attackTimer;
 
     // =========================================================
-    // Visual
+    // Visual & Drop
     // =========================================================
-
     [Header("Visual")]
     [SerializeField] private Transform visual;
 
-
-    // =========================================================
-    // Drop Item (새로 추가됨)
-    // =========================================================
-
     [Header("Drop Item")]
-    [SerializeField] private GameObject dropItemPrefab; // 죽을 때 떨어뜨릴 아이템 프리팹
-
+    [SerializeField] private GameObject dropItemPrefab;
 
     // =========================================================
     // State
     // =========================================================
-
     private bool isChasing;
-
+    private bool isAttacking;
     private bool isDead;
-
-
-    // =========================================================
-    // Awake
-    // =========================================================
 
     private void Awake()
     {
@@ -100,36 +81,41 @@ public class DummyEnemy : MonoBehaviour, IDamageable
             rb = GetComponent<Rigidbody2D>();
 
         currentHealth = maxHealth;
-
         patrolStartPosition = transform.position;
     }
 
-
-    // =========================================================
-    // Update
-    // =========================================================
-
     private void Update()
     {
-        if (isDead)
-            return;
+        if (isDead) return;
 
         CheckPlayerDetection();
     }
 
-
-    // =========================================================
-    // FixedUpdate
-    // =========================================================
-
     private void FixedUpdate()
     {
-        if (isDead)
+        if (isDead) return;
+
+        // 공격 중일 때는 이동 불가
+        if (isAttacking)
+        {
+            UpdateAttack();
             return;
+        }
 
         if (isChasing)
         {
-            ChasePlayer();
+            float distance = Vector2.Distance(transform.position, player.position);
+
+            // 공격 사거리 안이고, 쿨타임이 지났다면 공격 시작
+            if (distance <= attackRange && Time.time >= lastAttackTime + attackCooldown)
+            {
+                StartAttack();
+            }
+            else
+            {
+                // 공격 사거리를 벗어나면 다시 추적
+                ChasePlayer();
+            }
         }
         else
         {
@@ -137,50 +123,19 @@ public class DummyEnemy : MonoBehaviour, IDamageable
         }
     }
 
-
     // =========================================================
-    // Player Detection
+    // Player Detection (무한 추적으로 수정됨)
     // =========================================================
-
     private void CheckPlayerDetection()
     {
-        if (player == null)
-            return;
+        if (player == null) return;
 
+        // 한 번 추적을 시작했다면 더 이상 감지 범위를 검사하지 않음 (무한 추적)
+        if (isChasing) return;
 
-        float distance = Vector2.Distance(
-            transform.position,
-            player.position
-        );
+        float distance = Vector2.Distance(transform.position, player.position);
 
-
-        // -----------------------------------------------------
-        // 현재 추적 중
-        // -----------------------------------------------------
-
-        if (isChasing)
-        {
-            // 플레이어가 너무 멀어지면 추적 중단
-            if (distance > loseTargetRange)
-            {
-                StopChasing();
-            }
-
-            return;
-        }
-
-
-        // -----------------------------------------------------
-        // 플레이어가 감지 범위 밖
-        // -----------------------------------------------------
-
-        if (distance > detectionRange)
-            return;
-
-
-        // -----------------------------------------------------
-        // 시야 확인을 사용하지 않는 경우
-        // -----------------------------------------------------
+        if (distance > detectionRange) return;
 
         if (!requireLineOfSight)
         {
@@ -188,276 +143,124 @@ public class DummyEnemy : MonoBehaviour, IDamageable
             return;
         }
 
-
-        // -----------------------------------------------------
-        // 플레이어가 실제로 보이는지 확인
-        // -----------------------------------------------------
-
         if (CanSeePlayer())
         {
             StartChasing();
         }
     }
 
-
-    // =========================================================
-    // Line Of Sight
-    // =========================================================
-
     private bool CanSeePlayer()
     {
-        Vector2 startPosition;
-
-        if (eyePoint != null)
-        {
-            startPosition = eyePoint.position;
-        }
-        else
-        {
-            startPosition = transform.position;
-        }
-
-
-        Vector2 direction =
-            (Vector2)player.position - startPosition;
-
-
+        Vector2 startPosition = eyePoint != null ? eyePoint.position : transform.position;
+        Vector2 direction = (Vector2)player.position - startPosition;
         float distance = direction.magnitude;
 
-
-        RaycastHit2D hit = Physics2D.Raycast(
-            startPosition,
-            direction.normalized,
-            distance,
-            obstacleLayer
-        );
-
-
-        // 아무것도 맞지 않았다면
-        // 플레이어까지 시야가 확보된 것
+        RaycastHit2D hit = Physics2D.Raycast(startPosition, direction.normalized, distance, obstacleLayer);
         return hit.collider == null;
     }
 
-
-    // =========================================================
-    // Start Chase
-    // =========================================================
-
     private void StartChasing()
     {
-        if (isChasing)
-            return;
-
+        if (isChasing) return;
 
         isChasing = true;
-
-        Debug.Log(
-            "DummyEnemy : 플레이어 발견!"
-        );
+        Debug.Log("DummyEnemy : 플레이어 발견! (끝까지 추적합니다)");
     }
 
-
     // =========================================================
-    // Stop Chase
+    // Attack Actions (새로 추가됨)
     // =========================================================
-
-    private void StopChasing()
+    private void StartAttack()
     {
-        if (!isChasing)
-            return;
+        isAttacking = true;
+        attackTimer = attackDuration;
 
+        // 그 자리에 멈춤
+        rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
 
-        isChasing = false;
-
-
-        rb.linearVelocity = new Vector2(
-            0f,
-            rb.linearVelocity.y
-        );
-
-
-        Debug.Log(
-            "DummyEnemy : 플레이어를 놓침."
-        );
+        // 플레이어가 바라보는 방향에 히트박스 판정
+        Collider2D hitPlayer = Physics2D.OverlapCircle(attackPoint.position, attackRadius, playerLayer);
+        if (hitPlayer != null)
+        {
+            IDamageable damageable = hitPlayer.GetComponentInParent<IDamageable>();
+            if (damageable != null)
+            {
+                damageable.TakeDamage(attackDamage, gameObject);
+            }
+        }
     }
 
+    private void UpdateAttack()
+    {
+        attackTimer -= Time.fixedDeltaTime;
+        if (attackTimer <= 0f)
+        {
+            isAttacking = false;
+            lastAttackTime = Time.time;
+        }
+    }
 
     // =========================================================
-    // Patrol
+    // Patrol & Chase Movement
     // =========================================================
-
     private void Patrol()
     {
-        float leftLimit =
-            patrolStartPosition.x -
-            patrolDistance;
+        float leftLimit = patrolStartPosition.x - patrolDistance;
+        float rightLimit = patrolStartPosition.x + patrolDistance;
 
+        if (transform.position.x >= rightLimit) patrolDirection = -1;
+        if (transform.position.x <= leftLimit) patrolDirection = 1;
 
-        float rightLimit =
-            patrolStartPosition.x +
-            patrolDistance;
-
-
-        // -----------------------------------------------------
-        // 오른쪽 끝 도착
-        // -----------------------------------------------------
-
-        if (transform.position.x >= rightLimit)
-        {
-            patrolDirection = -1;
-        }
-
-
-        // -----------------------------------------------------
-        // 왼쪽 끝 도착
-        // -----------------------------------------------------
-
-        if (transform.position.x <= leftLimit)
-        {
-            patrolDirection = 1;
-        }
-
-
-        // -----------------------------------------------------
-        // 이동
-        // -----------------------------------------------------
-
-        rb.linearVelocity = new Vector2(
-            patrolDirection * patrolSpeed,
-            rb.linearVelocity.y
-        );
-
-
-        // -----------------------------------------------------
-        // 스프라이트 방향 전환
-        // -----------------------------------------------------
-
+        rb.linearVelocity = new Vector2(patrolDirection * patrolSpeed, rb.linearVelocity.y);
         FlipVisual();
     }
 
-
-    // =========================================================
-    // Chase
-    // =========================================================
-
     private void ChasePlayer()
     {
-        if (player == null)
-        {
-            StopChasing();
-            return;
-        }
+        if (player == null) return;
 
+        float direction = player.position.x - transform.position.x;
 
-        float direction =
-            player.position.x -
-            transform.position.x;
-
-
-        // 플레이어와 거의 같은 위치
+        // 너무 가까우면 이동 멈춤
         if (Mathf.Abs(direction) < 0.05f)
         {
-            rb.linearVelocity = new Vector2(
-                0f,
-                rb.linearVelocity.y
-            );
-
+            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
             return;
         }
 
+        float moveDirection = Mathf.Sign(direction);
+        rb.linearVelocity = new Vector2(moveDirection * chaseSpeed, rb.linearVelocity.y);
 
-        // 플레이어 방향
-        float moveDirection =
-            Mathf.Sign(direction);
-
-
-        // 이동
-        rb.linearVelocity = new Vector2(
-            moveDirection * chaseSpeed,
-            rb.linearVelocity.y
-        );
-
-
-        // 스프라이트 방향 전환
-        if (moveDirection > 0)
-        {
-            SetVisualDirection(1);
-        }
-        else
-        {
-            SetVisualDirection(-1);
-        }
+        if (moveDirection > 0) SetVisualDirection(1);
+        else SetVisualDirection(-1);
     }
-
-
-    // =========================================================
-    // Patrol Visual
-    // =========================================================
 
     private void FlipVisual()
     {
-        if (patrolDirection > 0)
-        {
-            SetVisualDirection(1);
-        }
-        else
-        {
-            SetVisualDirection(-1);
-        }
+        if (patrolDirection > 0) SetVisualDirection(1);
+        else SetVisualDirection(-1);
     }
-
-
-    // =========================================================
-    // Set Visual Direction
-    // =========================================================
 
     private void SetVisualDirection(int direction)
     {
-        if (visual == null)
-            return;
+        if (visual == null) return;
 
-
-        Vector3 scale =
-            visual.localScale;
-
-
-        scale.x =
-            Mathf.Abs(scale.x) *
-            direction;
-
-
-        visual.localScale =
-            scale;
+        Vector3 scale = visual.localScale;
+        scale.x = Mathf.Abs(scale.x) * direction;
+        visual.localScale = scale;
     }
 
-
     // =========================================================
-    // Damage
+    // Damage & Die
     // =========================================================
-
-    public void TakeDamage(
-        int damage,
-        GameObject attacker
-    )
+    public void TakeDamage(int damage, GameObject attacker)
     {
-        if (isDead)
-            return;
-
+        if (isDead) return;
 
         currentHealth -= damage;
+        currentHealth = Mathf.Max(currentHealth, 0);
 
-
-        currentHealth =
-            Mathf.Max(
-                currentHealth,
-                0
-            );
-
-
-        Debug.Log(
-            $"Dummy Damage: {damage} / HP: {currentHealth}/{maxHealth}"
-        );
-
+        Debug.Log($"Dummy Damage: {damage} / HP: {currentHealth}/{maxHealth}");
 
         if (currentHealth <= 0)
         {
@@ -465,105 +268,54 @@ public class DummyEnemy : MonoBehaviour, IDamageable
         }
     }
 
-
-    // =========================================================
-    // Die (수정됨)
-    // =========================================================
-
     private void Die()
     {
         isDead = true;
-
         rb.linearVelocity = Vector2.zero;
-
         Debug.Log("Dummy Dead");
 
-        // 아이템 드롭 로직 추가
         if (dropItemPrefab != null)
         {
             Instantiate(dropItemPrefab, transform.position, Quaternion.identity);
         }
 
-        // 테스트용
         gameObject.SetActive(false);
     }
 
-
     // =========================================================
-    // Gizmos
+    // Gizmos (공격 히트박스 그리기 추가)
     // =========================================================
-
     private void OnDrawGizmosSelected()
     {
-        // -----------------------------------------------------
-        // 순찰 범위
-        // -----------------------------------------------------
-
+        // 순찰
         Gizmos.color = Color.yellow;
-
-        Vector3 startPosition;
-
-        if (Application.isPlaying)
-        {
-            startPosition = patrolStartPosition;
-        }
-        else
-        {
-            startPosition = transform.position;
-        }
-
-
-        Vector3 left =
-            startPosition +
-            Vector3.left * patrolDistance;
-
-
-        Vector3 right =
-            startPosition +
-            Vector3.right * patrolDistance;
-
-
+        Vector3 startPosition = Application.isPlaying ? (Vector3)patrolStartPosition : transform.position;
+        Vector3 left = startPosition + Vector3.left * patrolDistance;
+        Vector3 right = startPosition + Vector3.right * patrolDistance;
         Gizmos.DrawLine(left, right);
         Gizmos.DrawWireSphere(left, 0.2f);
         Gizmos.DrawWireSphere(right, 0.2f);
 
-
-        // -----------------------------------------------------
-        // 감지 범위
-        // -----------------------------------------------------
-
+        // 감지
         Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
 
-        Gizmos.DrawWireSphere(
-            transform.position,
-            detectionRange
-        );
-
-
-        // -----------------------------------------------------
-        // 추적 해제 범위
-        // -----------------------------------------------------
-
-        Gizmos.color = Color.magenta;
-
-        Gizmos.DrawWireSphere(
-            transform.position,
-            loseTargetRange
-        );
-
-
-        // -----------------------------------------------------
         // 시야
-        // -----------------------------------------------------
-
         if (eyePoint != null && player != null)
         {
             Gizmos.color = Color.cyan;
+            Gizmos.DrawLine(eyePoint.position, player.position);
+        }
 
-            Gizmos.DrawLine(
-                eyePoint.position,
-                player.position
-            );
+        // 공격 사거리
+        Gizmos.color = new Color(1f, 0.5f, 0f); // 주황색
+        Gizmos.DrawWireSphere(transform.position, attackRange);
+
+        // 히트박스 영역 표시
+        if (attackPoint != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(attackPoint.position, attackRadius);
         }
     }
 }

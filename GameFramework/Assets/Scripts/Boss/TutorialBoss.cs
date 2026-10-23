@@ -5,8 +5,8 @@ public class TutorialBoss : MonoBehaviour, IDamageable
 {
     [Header("체력 및 상태 설정")]
     [SerializeField] private int maxHealth = 100;
-    [SerializeField] private int dashDamage = 20;     // 돌진 데미지
-    [SerializeField] private int slamDamage = 35;     // 내려찍기 충격파 데미지
+    [SerializeField] private int dashDamage = 20;         // 돌진 데미지
+    [SerializeField] private int laserDamage = 15;        // 레이저 초당/타격 데미지
     private int currentHealth;
     private bool isDead = false;
 
@@ -15,6 +15,7 @@ public class TutorialBoss : MonoBehaviour, IDamageable
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Collider2D bossCollider;
+    [SerializeField] private LineRenderer laserLine;      // 레이저 연출용 LineRenderer
 
     [Header("돌진 패턴 설정")]
     [SerializeField] private float dashSpeed = 25f;       // 돌진 속도
@@ -25,11 +26,13 @@ public class TutorialBoss : MonoBehaviour, IDamageable
     [Header("2페이즈 연속 돌진 설정")]
     [SerializeField] private float secondDashDelay = 0.3f; // 1차 돌진 후 2차 돌진 전 재조준 대기시간
 
-    [Header("내려찍기 패턴 설정")]
-    [SerializeField] private float jumpForce = 12f;       // 내려찍기 직전 공중 점프 힘
-    [SerializeField] private float slamSpeed = 30f;       // 바닥 강하 기본 속도
-    [SerializeField] private float slamRadius = 3f;       // 내려찍기 충격파 범위 반지름
-    [SerializeField] private LayerMask playerLayerMask;   // 플레이어 레이어 감지용
+    [Header("2페이즈 레이저 패턴 설정")]
+    [SerializeField] private float keepDistance = 8f;     // 플레이어와 유지할 후퇴 거리
+    [SerializeField] private float retreatSpeed = 15f;    // 후퇴 속도
+    [SerializeField] private float laserAimTime = 1.0f;   // 레이저 조준(경고) 시간
+    [SerializeField] private float laserDuration = 0.8f;  // 레이저 유지(발사) 시간
+    [SerializeField] private float laserMaxDistance = 20f;// 레이저 최대 사거리
+    [SerializeField] private LayerMask laserHitMask;      // 레이저에 감지될 레이어 (Player, Wall 등)
 
     [Header("시각 효과 (산나비 느낌)")]
     [SerializeField] private Color warningColor = Color.red;
@@ -47,9 +50,12 @@ public class TutorialBoss : MonoBehaviour, IDamageable
         if (rb == null) rb = GetComponent<Rigidbody2D>();
         if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
         if (bossCollider == null) bossCollider = GetComponent<Collider2D>();
+        if (laserLine == null) laserLine = GetComponent<LineRenderer>();
 
         originalColor = spriteRenderer.color;
         currentHealth = maxHealth;
+
+        if (laserLine != null) laserLine.enabled = false;
 
         bossLayer = gameObject.layer;
         if (player != null) playerLayer = player.gameObject.layer;
@@ -74,10 +80,10 @@ public class TutorialBoss : MonoBehaviour, IDamageable
     {
         isAttacking = true;
 
-        // 1단계: 돌진 패턴 (체력 50% 이하 시 2회 연속 돌진)
         bool isPhase2 = currentHealth <= (maxHealth / 2);
         int dashCount = isPhase2 ? 2 : 1;
 
+        // --- 1단계: 돌진 패턴 (1페이즈 1회, 2페이즈 2회) ---
         for (int i = 0; i < dashCount; i++)
         {
             if (isDead) yield break;
@@ -114,13 +120,13 @@ public class TutorialBoss : MonoBehaviour, IDamageable
             }
         }
 
-        // 2단계: 바닥 내려찍기 패턴
-        if (!isDead && player != null)
+        // --- 2단계: 2페이즈 전용 레이저 패턴 (거리 벌리기 후 레이저 발사) ---
+        if (isPhase2 && !isDead && player != null)
         {
-            yield return StartCoroutine(ExecuteGroundSlamPattern());
+            yield return StartCoroutine(ExecuteLaserPattern());
         }
 
-        // 3단계: 패턴 완료 후 딜 타임
+        // --- 3단계: 공격 완수 후 딜 타임(후딜레이) ---
         if (!isDead)
         {
             yield return new WaitForSeconds(1.5f);
@@ -129,69 +135,112 @@ public class TutorialBoss : MonoBehaviour, IDamageable
         isAttacking = false;
     }
 
-    // 내려찍기 패턴 코루틴 (속도 저하 방지 적용)
-    private IEnumerator ExecuteGroundSlamPattern()
+    // 2페이즈 레이저 패턴 코루틴
+    private IEnumerator ExecuteLaserPattern()
     {
+        // 1. 플레이어와 거리 벌리기 (후퇴)
+        LookAtPlayer();
+        float currentDist = Vector2.Distance(transform.position, player.position);
+
+        if (currentDist < keepDistance)
+        {
+            // 플레이어의 반대 방향으로 후퇴
+            Vector2 retreatDir = (transform.position - player.position).normalized;
+            // X축 위주로 후퇴하도록 조정
+            retreatDir = new Vector2(Mathf.Sign(retreatDir.x), 0f).normalized;
+
+            float retreatTimer = 0f;
+            while (retreatTimer < 0.6f && Vector2.Distance(transform.position, player.position) < keepDistance && !isDead)
+            {
+                SetVelocity(retreatDir * retreatSpeed);
+                retreatTimer += Time.deltaTime;
+                yield return null;
+            }
+            StopHorizontalMovement();
+        }
+
+        if (isDead) yield break;
+
+        // 2. 레이저 조준 단계 (붉은 가이드라인 표사)
         LookAtPlayer();
         spriteRenderer.color = warningColor;
 
-        // 1. 공중 선점프
-        SetVelocity(new Vector2(0f, jumpForce));
-        yield return new WaitForSeconds(0.15f);
-
-        // 2. 공중 정지 및 위치 조준
-        SetVelocity(Vector2.zero);
-
-        float targetX = player.position.x;
-        float alignTimer = 0f;
-        while (alignTimer < 0.08f && !isDead)
+        if (laserLine != null)
         {
-            float newX = Mathf.Lerp(transform.position.x, targetX, Time.deltaTime * 20f);
-            transform.position = new Vector3(newX, transform.position.y, transform.position.z);
-            alignTimer += Time.deltaTime;
+            laserLine.enabled = true;
+            laserLine.startWidth = 0.05f; // 경고용 얇은 선
+            laserLine.endWidth = 0.05f;
+        }
+
+        float aimTimer = 0f;
+        Vector2 laserDir = Vector2.zero;
+
+        while (aimTimer < laserAimTime && !isDead)
+        {
+            LookAtPlayer();
+            laserDir = (player.position - transform.position).normalized;
+
+            // 조준 선 그리기
+            if (laserLine != null)
+            {
+                laserLine.SetPosition(0, transform.position);
+                laserLine.SetPosition(1, (Vector2)transform.position + laserDir * laserMaxDistance);
+            }
+
+            aimTimer += Time.deltaTime;
             yield return null;
         }
 
         spriteRenderer.color = originalColor;
 
-        // 3. 수직 초고속 급강하
-        bool hitGround = false;
-        float currentSlamSpeed = slamSpeed;
-
-        // ★ 플레이어와 충돌을 무시하여 마찰로 인한 속도 저하 방지
-        SetPlayerCollision(false);
-
-        while (!hitGround && !isDead)
+        // 3. 레이저 발사 (두꺼운 라인 및 데미지 판정)
+        if (!isDead)
         {
-            currentSlamSpeed += Time.deltaTime * 100f; // 매 프레임 가속
-            SetVelocity(Vector2.down * currentSlamSpeed);
-
-            // 속도가 빠르므로 Raycast 길이를 넉넉하게 지정하여 바닥 감지
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 2.0f);
-            if (hit.collider != null && !hit.collider.CompareTag("Player"))
+            if (laserLine != null)
             {
-                hitGround = true;
+                laserLine.startWidth = 0.4f; // 발사 시 두꺼워짐
+                laserLine.endWidth = 0.4f;
             }
 
-            yield return null;
+            float fireTimer = 0f;
+            bool hitPlayerThisFrame = false;
+
+            while (fireTimer < laserDuration && !isDead)
+            {
+                Vector2 startPos = transform.position;
+                RaycastHit2D hit = Physics2D.Raycast(startPos, laserDir, laserMaxDistance, laserHitMask);
+
+                Vector2 endPos = startPos + laserDir * laserMaxDistance;
+
+                if (hit.collider != null)
+                {
+                    endPos = hit.point;
+
+                    // 플레이어가 레이저에 맞았을 때 데미지 처리 (1회 또는 지속)
+                    if (!hitPlayerThisFrame && hit.collider.CompareTag("Player"))
+                    {
+                        if (hit.collider.TryGetComponent<IDamageable>(out var damageable))
+                        {
+                            damageable.TakeDamage(laserDamage, gameObject);
+                            hitPlayerThisFrame = true; // 1회격출 처리 (지속 데미지를 원하면 조건 제거 가능)
+                        }
+                    }
+                }
+
+                if (laserLine != null)
+                {
+                    laserLine.SetPosition(0, startPos);
+                    laserLine.SetPosition(1, endPos);
+                }
+
+                fireTimer += Time.deltaTime;
+                yield return null;
+            }
         }
 
-        // 4. 착지 및 원상 복구
+        // 레이저 비활성화 및 정지
+        if (laserLine != null) laserLine.enabled = false;
         StopHorizontalMovement();
-        SetVelocity(Vector2.zero);
-
-        // ★ 착지 완료 후 플레이어와의 충돌 관계 복원
-        SetPlayerCollision(true);
-
-        // 충격파 범위 데미지 판정
-        Collider2D[] hitPlayers = Physics2D.OverlapCircleAll(transform.position, slamRadius, playerLayerMask);
-        foreach (Collider2D p in hitPlayers)
-        {
-            if (p.CompareTag("Player") && p.TryGetComponent<IDamageable>(out var damageable))
-            {
-                damageable.TakeDamage(slamDamage, gameObject);
-            }
-        }
     }
 
     private void SetPlayerCollision(bool enableCollision)
@@ -248,6 +297,7 @@ public class TutorialBoss : MonoBehaviour, IDamageable
         isDead = true;
         StopAllCoroutines();
         SetPlayerCollision(true);
+        if (laserLine != null) laserLine.enabled = false;
 
         Debug.Log("튜토리얼 보스가 처치되었습니다!");
         Destroy(gameObject, 0.5f);
@@ -257,22 +307,22 @@ public class TutorialBoss : MonoBehaviour, IDamageable
     {
         if (rb == null) return;
 
-#if UNITY_6000_0_OR_NEWER
-        rb.linearVelocity = velocity;
-#else
+        #if UNITY_6000_0_OR_NEWER
+            rb.linearVelocity = velocity;
+        #else
             rb.velocity = velocity;
-#endif
+        #endif
     }
 
     private void StopHorizontalMovement()
     {
         if (rb == null) return;
 
-#if UNITY_6000_0_OR_NEWER
-        rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
-#else
+        #if UNITY_6000_0_OR_NEWER
+            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+        #else
             rb.velocity = new Vector2(0f, rb.velocity.y);
-#endif
+        #endif
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -289,11 +339,5 @@ public class TutorialBoss : MonoBehaviour, IDamageable
                 damageable.TakeDamage(dashDamage, gameObject);
             }
         }
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, slamRadius);
     }
 }

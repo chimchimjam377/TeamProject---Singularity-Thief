@@ -16,6 +16,7 @@ public class TutorialBoss : MonoBehaviour, IDamageable
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Collider2D bossCollider;
     [SerializeField] private LineRenderer laserLine;      // 레이저 연출용 LineRenderer
+    [SerializeField] private Animator animator;           // 애니메이터 참조
 
     [Header("돌진 패턴 설정")]
     [SerializeField] private float dashSpeed = 25f;       // 돌진 속도
@@ -32,7 +33,7 @@ public class TutorialBoss : MonoBehaviour, IDamageable
     [SerializeField] private float laserAimTime = 1.0f;   // 레이저 조준(경고) 시간
     [SerializeField] private float laserDuration = 0.8f;  // 레이저 유지(발사) 시간
     [SerializeField] private float laserMaxDistance = 20f;// 레이저 최대 사거리
-    [SerializeField] private LayerMask laserHitMask;      // 레이저에 감지될 레이어 (Player, Wall 등)
+    [SerializeField] private LayerMask laserHitMask;      // 레이저에 감지될 레이어
 
     [Header("시각 효과 (산나비 느낌)")]
     [SerializeField] private Color warningColor = Color.red;
@@ -45,12 +46,21 @@ public class TutorialBoss : MonoBehaviour, IDamageable
     private int bossLayer;
     private int playerLayer;
 
+    // 애니메이터 파라미터 해시값 (성능 최적화)
+    private static readonly int IsDashingHash = Animator.StringToHash("IsDashing");
+    private static readonly int DashChargeHash = Animator.StringToHash("DashCharge");
+    private static readonly int LaserAimHash = Animator.StringToHash("LaserAim");
+    private static readonly int LaserFireHash = Animator.StringToHash("LaserFire");
+    private static readonly int HitHash = Animator.StringToHash("Hit");
+    private static readonly int DieHash = Animator.StringToHash("Die");
+
     private void Start()
     {
         if (rb == null) rb = GetComponent<Rigidbody2D>();
         if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
         if (bossCollider == null) bossCollider = GetComponent<Collider2D>();
         if (laserLine == null) laserLine = GetComponent<LineRenderer>();
+        if (animator == null) animator = GetComponent<Animator>(); // Animator 자동 연결
 
         originalColor = spriteRenderer.color;
         currentHealth = maxHealth;
@@ -83,7 +93,7 @@ public class TutorialBoss : MonoBehaviour, IDamageable
         bool isPhase2 = currentHealth <= (maxHealth / 2);
         int dashCount = isPhase2 ? 2 : 1;
 
-        // --- 1단계: 돌진 패턴 (1페이즈 1회, 2페이즈 2회) ---
+        // --- 1단계: 돌진 패턴 ---
         for (int i = 0; i < dashCount; i++)
         {
             if (isDead) yield break;
@@ -94,6 +104,9 @@ public class TutorialBoss : MonoBehaviour, IDamageable
             StopHorizontalMovement();
             spriteRenderer.color = warningColor;
 
+            // 애니메이션: 돌진 준비(차징)
+            SetAnimTrigger(DashChargeHash);
+
             float currentChargeTime = (i == 0) ? chargeTime : chargeTime * 0.5f;
             yield return new WaitForSeconds(currentChargeTime);
 
@@ -101,6 +114,9 @@ public class TutorialBoss : MonoBehaviour, IDamageable
             {
                 spriteRenderer.color = originalColor;
                 SetPlayerCollision(false);
+
+                // 애니메이션: 돌진 시작
+                SetAnimBool(IsDashingHash, true);
 
                 float timer = 0f;
                 while (timer < dashDuration && !isDead)
@@ -111,6 +127,9 @@ public class TutorialBoss : MonoBehaviour, IDamageable
                 }
             }
 
+            // 애니메이션: 돌진 종료
+            SetAnimBool(IsDashingHash, false);
+
             StopHorizontalMovement();
             SetPlayerCollision(true);
 
@@ -120,13 +139,13 @@ public class TutorialBoss : MonoBehaviour, IDamageable
             }
         }
 
-        // --- 2단계: 2페이즈 전용 레이저 패턴 (거리 벌리기 후 레이저 발사) ---
+        // --- 2단계: 2페이즈 전용 레이저 패턴 ---
         if (isPhase2 && !isDead && player != null)
         {
             yield return StartCoroutine(ExecuteLaserPattern());
         }
 
-        // --- 3단계: 공격 완수 후 딜 타임(후딜레이) ---
+        // --- 3단계: 패턴 완료 후 딜 타임 ---
         if (!isDead)
         {
             yield return new WaitForSeconds(1.5f);
@@ -135,7 +154,6 @@ public class TutorialBoss : MonoBehaviour, IDamageable
         isAttacking = false;
     }
 
-    // 2페이즈 레이저 패턴 코루틴
     private IEnumerator ExecuteLaserPattern()
     {
         // 1. 플레이어와 거리 벌리기 (후퇴)
@@ -144,9 +162,7 @@ public class TutorialBoss : MonoBehaviour, IDamageable
 
         if (currentDist < keepDistance)
         {
-            // 플레이어의 반대 방향으로 후퇴
             Vector2 retreatDir = (transform.position - player.position).normalized;
-            // X축 위주로 후퇴하도록 조정
             retreatDir = new Vector2(Mathf.Sign(retreatDir.x), 0f).normalized;
 
             float retreatTimer = 0f;
@@ -161,14 +177,17 @@ public class TutorialBoss : MonoBehaviour, IDamageable
 
         if (isDead) yield break;
 
-        // 2. 레이저 조준 단계 (붉은 가이드라인 표사)
+        // 2. 레이저 조준 단계
         LookAtPlayer();
         spriteRenderer.color = warningColor;
+
+        // 애니메이션: 레이저 조준
+        SetAnimTrigger(LaserAimHash);
 
         if (laserLine != null)
         {
             laserLine.enabled = true;
-            laserLine.startWidth = 0.05f; // 경고용 얇은 선
+            laserLine.startWidth = 0.05f;
             laserLine.endWidth = 0.05f;
         }
 
@@ -180,7 +199,6 @@ public class TutorialBoss : MonoBehaviour, IDamageable
             LookAtPlayer();
             laserDir = (player.position - transform.position).normalized;
 
-            // 조준 선 그리기
             if (laserLine != null)
             {
                 laserLine.SetPosition(0, transform.position);
@@ -193,12 +211,15 @@ public class TutorialBoss : MonoBehaviour, IDamageable
 
         spriteRenderer.color = originalColor;
 
-        // 3. 레이저 발사 (두꺼운 라인 및 데미지 판정)
+        // 3. 레이저 발사
         if (!isDead)
         {
+            // 애니메이션: 레이저 발사
+            SetAnimTrigger(LaserFireHash);
+
             if (laserLine != null)
             {
-                laserLine.startWidth = 0.4f; // 발사 시 두꺼워짐
+                laserLine.startWidth = 0.4f;
                 laserLine.endWidth = 0.4f;
             }
 
@@ -216,13 +237,12 @@ public class TutorialBoss : MonoBehaviour, IDamageable
                 {
                     endPos = hit.point;
 
-                    // 플레이어가 레이저에 맞았을 때 데미지 처리 (1회 또는 지속)
                     if (!hitPlayerThisFrame && hit.collider.CompareTag("Player"))
                     {
                         if (hit.collider.TryGetComponent<IDamageable>(out var damageable))
                         {
                             damageable.TakeDamage(laserDamage, gameObject);
-                            hitPlayerThisFrame = true; // 1회격출 처리 (지속 데미지를 원하면 조건 제거 가능)
+                            hitPlayerThisFrame = true;
                         }
                     }
                 }
@@ -238,7 +258,6 @@ public class TutorialBoss : MonoBehaviour, IDamageable
             }
         }
 
-        // 레이저 비활성화 및 정지
         if (laserLine != null) laserLine.enabled = false;
         StopHorizontalMovement();
     }
@@ -273,6 +292,9 @@ public class TutorialBoss : MonoBehaviour, IDamageable
         currentHealth -= damage;
         Debug.Log($"보스가 {damage}의 데미지를 입었습니다! 남은 체력: {currentHealth}/{maxHealth}");
 
+        // 애니메이션: 피격 모션
+        SetAnimTrigger(HitHash);
+
         StartCoroutine(FlashHitEffect());
 
         if (currentHealth <= 0)
@@ -299,8 +321,22 @@ public class TutorialBoss : MonoBehaviour, IDamageable
         SetPlayerCollision(true);
         if (laserLine != null) laserLine.enabled = false;
 
+        // 애니메이션: 사망 모션
+        SetAnimTrigger(DieHash);
+
         Debug.Log("튜토리얼 보스가 처치되었습니다!");
-        Destroy(gameObject, 0.5f);
+        Destroy(gameObject, 1.0f);
+    }
+
+    // 안전한 애니메이터 파라미터 제어 함수
+    private void SetAnimBool(int parameterHash, bool value)
+    {
+        if (animator != null) animator.SetBool(parameterHash, value);
+    }
+
+    private void SetAnimTrigger(int parameterHash)
+    {
+        if (animator != null) animator.SetTrigger(parameterHash);
     }
 
     private void SetVelocity(Vector2 velocity)

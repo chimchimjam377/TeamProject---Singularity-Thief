@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: SoundLibrary
   m_EditorClassIdentifier: GameFramework::GameFramework.Data.SoundLibrary
   sounds:
-  - id: 
-    clip: {fileID: 0}
+  - id: RespectOfForever
+    clip: {fileID: 8300000, guid: da2364bcebf1bf049af59cdc0d67b902, type: 3}
     volume: 0
     pitch: 0
     randomPitch: 0

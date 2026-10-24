@@ -12,4 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7776b0d2809a1394b9adc41671cb6574, type: 3}
   m_Name: SoundLibrary
   m_EditorClassIdentifier: GameFramework::GameFramework.Data.SoundLibrary
-  sounds: []
+  sounds:
+  - id: 
+    clip: {fileID: 0}
+    volume: 0
+    pitch: 0
+    randomPitch: 0

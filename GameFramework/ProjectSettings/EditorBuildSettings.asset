@@ -9,18 +9,6 @@ EditorBuildSettings:
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
-    path: Assets/Scenes/2D_Test.unity
-    guid: f3046a603872076418a992ef7540b2b0
-  - enabled: 1
-    path: Assets/Scenes/Dialogue_Test.unity
-    guid: bd840275fa27a5d42be1003fc4afc975
-  - enabled: 0
-    path: Assets/Scenes/BattlleTest.unity
-    guid: 934326240c2411a43bbb5e436f55cfc2
-  - enabled: 1
-    path: Assets/Scenes/2D_Random_Tilemap.unity
-    guid: 73856ca2c63e24b5291fc18b7c0438a2
-  - enabled: 1
     path: Assets/MainPlayScenes/Title.unity
     guid: 1a16fe1534be94446977d210f186f6c6
   - enabled: 1
@@ -29,5 +17,17 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/MainPlayScenes/Tutorial001.unity
     guid: fe837876112d79b4f96bc8c5fdc78168
+  - enabled: 0
+    path: Assets/Scenes/2D_Test.unity
+    guid: f3046a603872076418a992ef7540b2b0
+  - enabled: 0
+    path: Assets/Scenes/Dialogue_Test.unity
+    guid: bd840275fa27a5d42be1003fc4afc975
+  - enabled: 0
+    path: Assets/Scenes/BattlleTest.unity
+    guid: 934326240c2411a43bbb5e436f55cfc2
+  - enabled: 0
+    path: Assets/Scenes/2D_Random_Tilemap.unity
+    guid: 73856ca2c63e24b5291fc18b7c0438a2
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

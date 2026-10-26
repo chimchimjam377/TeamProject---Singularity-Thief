@@ -29,5 +29,17 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/2D_Random_Tilemap.unity
     guid: 73856ca2c63e24b5291fc18b7c0438a2
+  - enabled: 1
+    path: Assets/MainPlayScenes/Room01.unity
+    guid: e533a556760324ac88da1ddabac96b9b
+  - enabled: 1
+    path: Assets/MainPlayScenes/Room02.unity
+    guid: 7699bb82a97e248f2a9408c8ead96c63
+  - enabled: 1
+    path: Assets/MainPlayScenes/Room03.unity
+    guid: b7b1ca4867da441bf816a1ded4bcb2a2
+  - enabled: 1
+    path: Assets/MainPlayScenes/GameOver.unity
+    guid: 2c748762ab28c4615b9bddeba0b7a092
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

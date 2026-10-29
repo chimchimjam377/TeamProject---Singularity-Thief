@@ -8,16 +8,15 @@ public class PlayerStats : MonoBehaviour, IDamageable
     private int currentHealth;
 
     private PlayerDodge playerDodge;
+    private PlayerState playerState;
+    private bool isDead;
 
     public int MaxHealth => maxHealth;
     public int CurrentHealth => currentHealth;
-
-    public int SoundPower { get; private set; } = 10; // 소리 파워를 외부에서 설정할 수 있도록 프로퍼티 추가
-
-    private bool isDead;
-    private PlayerState playerState;
-
     public bool IsDead => isDead;
+
+    [Header("Detection")]
+    public float SoundPower = 10f;
 
     private void Awake()
     {
@@ -30,19 +29,16 @@ public class PlayerStats : MonoBehaviour, IDamageable
     public void TakeDamage(int damage, GameObject attacker)
     {
         if (isDead || damage <= 0)
-             return;
+            return;
 
-        // 닷지 무적
+        // 닷지 무적 판정 유지
         if (playerDodge != null && playerDodge.IsInvincible)
             return;
 
         currentHealth -= damage;
-
         currentHealth = Mathf.Max(currentHealth, 0);
 
-        Debug.Log(
-            $"Player Damage: {damage} / HP: {currentHealth}/{maxHealth}"
-        );
+        Debug.Log($"Player Damage: {damage} / HP: {currentHealth}/{maxHealth}");
 
         if (currentHealth <= 0)
         {
@@ -58,7 +54,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
         isDead = true;
 
         if (playerState != null)
-             playerState.SetState(PlayerStateType.Dead);
+            playerState.SetState(PlayerStateType.Dead);
 
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
 
@@ -69,7 +65,6 @@ public class PlayerStats : MonoBehaviour, IDamageable
         }
 
         Debug.Log("Player Dead");
-
         gameObject.SetActive(false);
     }
 

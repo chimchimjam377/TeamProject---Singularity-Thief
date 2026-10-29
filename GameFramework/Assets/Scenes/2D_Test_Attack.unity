@@ -13280,6 +13280,7 @@ GameObject:
   - component: {fileID: 963595139}
   - component: {fileID: 963595140}
   - component: {fileID: 963595141}
+  - component: {fileID: 963595142}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -13476,7 +13477,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c8e04a7caf81d4438ab8c89012b71b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDamageScreen
-  playerStats: {fileID: 963595138}
+  playerStats: {fileID: 963595142}
   damagePanel: {fileID: 801658775}
   maxOpacity: 0.65
   intensityPower: 1.2
@@ -13537,6 +13538,20 @@ MonoBehaviour:
   rb: {fileID: 963595136}
   playerMovement: {fileID: 963595135}
   bodyCollider: {fileID: 963595130}
+--- !u!114 &963595142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963595128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 463195d97150a40d2a22a6b678c04577, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
+  maxHealth: 100
+  SoundPower: 10
 --- !u!1 &1002289929
 GameObject:
   m_ObjectHideFlags: 0

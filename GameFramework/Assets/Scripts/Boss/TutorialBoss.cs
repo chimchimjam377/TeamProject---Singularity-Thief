@@ -35,7 +35,7 @@ public class TutorialBoss : MonoBehaviour, IDamageable
     [SerializeField] private float laserMaxDistance = 20f;// 레이저 최대 사거리
     [SerializeField] private LayerMask laserHitMask;      // 레이저에 감지될 레이어
 
-    [Header("시각 효과 (산나비 느낌)")]
+    [Header("시각 효과")]
     [SerializeField] private Color warningColor = Color.red;
     [SerializeField] private Color hitColor = Color.white;
     private Color originalColor;
@@ -47,11 +47,11 @@ public class TutorialBoss : MonoBehaviour, IDamageable
     private int playerLayer;
 
     // 애니메이터 파라미터 해시값 (성능 최적화)
-    private static readonly int IsDashingHash = Animator.StringToHash("IsDashing");
-    private static readonly int DashChargeHash = Animator.StringToHash("DashCharge");
-    private static readonly int LaserAimHash = Animator.StringToHash("LaserAim");
-    private static readonly int LaserFireHash = Animator.StringToHash("LaserFire");
-    private static readonly int HitHash = Animator.StringToHash("Hit");
+    private static readonly int IsDashingHash = Animator.StringToHash("Attack003");
+    private static readonly int DashChargeHash = Animator.StringToHash("ready002");
+    private static readonly int LaserAimHash = Animator.StringToHash("ready001");
+    private static readonly int LaserFireHash = Animator.StringToHash("Attack001");
+    private static readonly int HitHash = Animator.StringToHash("Idle");
     private static readonly int DieHash = Animator.StringToHash("Die");
 
     private void Start()

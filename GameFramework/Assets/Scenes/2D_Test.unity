@@ -10508,6 +10508,7 @@ GameObject:
   - component: {fileID: 963595130}
   - component: {fileID: 963595138}
   - component: {fileID: 963595137}
+  - component: {fileID: 963595139}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -10654,7 +10655,7 @@ MonoBehaviour:
   rb: {fileID: 963595136}
   wallDetector: {fileID: 963595134}
   visual: {fileID: 703995649}
-  animator: {fileID: 0}
+  animator: {fileID: 957787633}
   moveSpeed: 7
   jumpForce: 14
   maxJumpCount: 2
@@ -10704,7 +10705,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c8e04a7caf81d4438ab8c89012b71b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDamageScreen
-  playerStats: {fileID: 963595138}
+  playerStats: {fileID: 963595139}
   damagePanel: {fileID: 801658775}
   maxOpacity: 0.65
   intensityPower: 1.2
@@ -10722,6 +10723,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
   maxHealth: 100
+  SoundPower: 10
+--- !u!114 &963595139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963595128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 463195d97150a40d2a22a6b678c04577, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
+  maxHealth: 100
+  SoundPower: 10
 --- !u!1 &1552071086
 GameObject:
   m_ObjectHideFlags: 0
@@ -20727,11 +20743,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1835218147211993281, guid: 934642d986ef3f9479f9657e61666bb1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.257
+      value: 24.92
       objectReference: {fileID: 0}
     - target: {fileID: 1835218147211993281, guid: 934642d986ef3f9479f9657e61666bb1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.261
+      value: -2.15
       objectReference: {fileID: 0}
     - target: {fileID: 1835218147211993281, guid: 934642d986ef3f9479f9657e61666bb1, type: 3}
       propertyPath: m_LocalPosition.z
@@ -20765,10 +20781,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3317079712596787410, guid: 934642d986ef3f9479f9657e61666bb1, type: 3}
+      propertyPath: m_Size.x
+      value: 6.743438
+      objectReference: {fileID: 0}
+    - target: {fileID: 3317079712596787410, guid: 934642d986ef3f9479f9657e61666bb1, type: 3}
+      propertyPath: m_Size.y
+      value: 12.106934
+      objectReference: {fileID: 0}
+    - target: {fileID: 3317079712596787410, guid: 934642d986ef3f9479f9657e61666bb1, type: 3}
+      propertyPath: m_Offset.x
+      value: -5.6034083
+      objectReference: {fileID: 0}
+    - target: {fileID: 3317079712596787410, guid: 934642d986ef3f9479f9657e61666bb1, type: 3}
+      propertyPath: m_Offset.y
+      value: 7.473692
+      objectReference: {fileID: 0}
     - target: {fileID: 5860469073440382609, guid: 934642d986ef3f9479f9657e61666bb1, type: 3}
       propertyPath: player
       value: 
       objectReference: {fileID: 963595129}
+    - target: {fileID: 5860469073440382609, guid: 934642d986ef3f9479f9657e61666bb1, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 1160356261127867848, guid: dfc0114886bf5e64296a881f2982b5e4, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

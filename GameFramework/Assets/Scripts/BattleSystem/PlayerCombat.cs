@@ -13,6 +13,8 @@ public class PlayerCombat : MonoBehaviour
     [Header("Visual")]
     [SerializeField] private Transform visualRoot;
 
+    [SerializeField] private PlayerStats playerStats;
+
     private AttackDefinition currentAttack;
 
 
@@ -47,6 +49,9 @@ public class PlayerCombat : MonoBehaviour
 
         if (animator == null)
             Debug.LogError("Animator를 찾을 수 없습니다.", this);
+
+        if (playerStats == null)
+            playerStats = GetComponent<PlayerStats>();
     }
 
     private void Update()
@@ -202,12 +207,7 @@ public class PlayerCombat : MonoBehaviour
         {
             if (!hitboxActive)
             {
-                attackHitbox.Activate(
-                    currentAttack.Damage,
-                    gameObject
-                );
-
-                hitboxActive = true;
+                ActivateCurrentHitbox();
             }
 
             UpdateHitboxShape(normalizedTime);
@@ -300,21 +300,49 @@ public class PlayerCombat : MonoBehaviour
 
     private void SetHitbox(bool active)
     {
-        hitboxActive = active;
+        if (!active)
+        {
+            hitboxActive = false;
 
-        if (attackHitbox == null)
+            if (attackHitbox != null)
+                attackHitbox.Deactivate();
+
+            return;
+        }
+
+        if (!hitboxActive)
+        {
+            ActivateCurrentHitbox();
+        }
+    }
+
+
+    private void ActivateCurrentHitbox()
+    {
+        if (currentAttack == null || attackHitbox == null)
             return;
 
-        if (active && currentAttack != null)
+        int finalDamage = currentAttack.Damage;
+        bool isCritical = false;
+
+        if (playerStats != null)
         {
-            attackHitbox.Activate(
-                currentAttack.Damage,
-                gameObject
+            finalDamage = playerStats.CalculateAttackDamage(
+                currentAttack,
+                out isCritical
             );
         }
-        else
+
+        attackHitbox.Activate(finalDamage, gameObject);
+
+        hitboxActive = true;
+
+        if (isCritical)
         {
-            attackHitbox.Deactivate();
+            Debug.Log(
+                $"CRITICAL! {currentAttack.DisplayName} / " +
+                $"Damage: {finalDamage}"
+            );
         }
     }
 

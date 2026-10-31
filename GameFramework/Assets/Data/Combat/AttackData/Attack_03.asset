@@ -17,6 +17,7 @@ MonoBehaviour:
   icon: {fileID: 5721116905417097969, guid: f30f27af4861c394491be381579f8fa7, type: 3}
   animatorStateName: Attack03
   damage: 50
+  attackType: 1
   hitboxStart: 0
   hitboxEnd: 0.573
   comboInputStart: 0

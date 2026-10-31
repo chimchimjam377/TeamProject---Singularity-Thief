@@ -1,6 +1,13 @@
 
 using UnityEngine;
 
+public enum AttackType
+{
+    Slash,  // 베기
+    Pierce, // 찌르기
+    Blunt   // 타격
+}
+
 public enum AttackMovementType
 {
     None,           // 이동하지 않음
@@ -30,6 +37,9 @@ public class AttackDefinition : ScriptableObject
     [Header("Damage")]
     [Min(0)]
     [SerializeField] private int damage = 10;
+
+    [Header("Attack Type")]
+    [SerializeField] private AttackType attackType = AttackType.Slash;
 
     [Header("Hitbox Timing")]
     [Range(0f, 1f)]
@@ -61,6 +71,12 @@ public class AttackDefinition : ScriptableObject
     [SerializeField]
     private AnimationCurve hitboxOffsetY =
         AnimationCurve.Linear(0f, 0f, 1f, 0f);
+
+
+    [Header("Critical")]
+    [Tooltip("이 공격의 기본 크리티컬 확률")]
+    [Range(0f, 1f)]
+    [SerializeField] private float criticalChance = 0.05f;
 
     // =========================================
     // 공격 이동 설정
@@ -119,6 +135,8 @@ public class AttackDefinition : ScriptableObject
     public string AnimatorStateName => animatorStateName;
     public int Damage => damage;
 
+    public AttackType Type => attackType;
+
     public float HitboxStart => hitboxStart;
     public float HitboxEnd => hitboxEnd;
 
@@ -129,6 +147,8 @@ public class AttackDefinition : ScriptableObject
     public AnimationCurve HitboxHeight => hitboxHeight;
     public AnimationCurve HitboxOffsetX => hitboxOffsetX;
     public AnimationCurve HitboxOffsetY => hitboxOffsetY;
+
+    public float CriticalChance => criticalChance;
 
     // =========================================
     // 이동 설정 프로퍼티
@@ -176,6 +196,8 @@ public class AttackDefinition : ScriptableObject
 
         damage = Mathf.Max(0, damage);
         moveDistance = Mathf.Max(0f, moveDistance);
+
+        criticalChance = Mathf.Clamp01(criticalChance);
 
         targetSearchRadius = Mathf.Max(
             0f, targetSearchRadius

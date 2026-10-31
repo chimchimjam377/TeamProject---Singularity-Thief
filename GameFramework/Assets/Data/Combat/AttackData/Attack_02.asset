@@ -17,6 +17,7 @@ MonoBehaviour:
   icon: {fileID: -1845100261979308827, guid: d2c041e5a0132d641afe1a9210426365, type: 3}
   animatorStateName: Attack02
   damage: 30
+  attackType: 2
   hitboxStart: 0.118
   hitboxEnd: 0.792
   comboInputStart: 0.343
@@ -117,3 +118,37 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  movementType: 0
+  movementStart: 0.2
+  movementEnd: 0.6
+  movementCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  moveDistance: 2.5
+  targetMovementMode: 0
+  targetSearchRadius: 5
+  targetStopDistance: 1
+  targetLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295

@@ -38,6 +38,10 @@ public class AttackDefinition : ScriptableObject
     [Min(0)]
     [SerializeField] private int damage = 10;
 
+    [Header("Stamina Cost")]
+    [Min(0f)]
+    [SerializeField] private float staminaCost = 10f;
+
     [Header("Attack Type")]
     [SerializeField] private AttackType attackType = AttackType.Slash;
 
@@ -150,6 +154,8 @@ public class AttackDefinition : ScriptableObject
 
     public float CriticalChance => criticalChance;
 
+    public float StaminaCost => staminaCost;
+
     // =========================================
     // 이동 설정 프로퍼티
     // =========================================
@@ -194,10 +200,15 @@ public class AttackDefinition : ScriptableObject
             1f
         );
 
+        // 스킬 데미지, 이동 거리, 크리티컬 확률, 스태미나 소모량,
+        // 적 탐색 반경, 적 정지 거리 등은 음수가 되지 않도록 제한
         damage = Mathf.Max(0, damage);
+
         moveDistance = Mathf.Max(0f, moveDistance);
 
         criticalChance = Mathf.Clamp01(criticalChance);
+
+        staminaCost = Mathf.Max(0f, staminaCost);
 
         targetSearchRadius = Mathf.Max(
             0f, targetSearchRadius

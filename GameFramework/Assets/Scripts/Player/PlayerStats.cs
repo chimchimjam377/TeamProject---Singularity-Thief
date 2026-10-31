@@ -2,10 +2,14 @@ using UnityEngine;
 
 public class PlayerStats : MonoBehaviour, IDamageable
 {
-    [Header("Health")]
+    [Header("체력")]
     [SerializeField] private int maxHealth = 100;
 
+    [Header("스태미나")]
+    [SerializeField] private float maxStamina = 100f;
+
     private int currentHealth;
+    private float currentStamina;
 
     private PlayerDodge playerDodge;
     private PlayerState playerState;
@@ -14,6 +18,12 @@ public class PlayerStats : MonoBehaviour, IDamageable
     public int MaxHealth => maxHealth;
     public int CurrentHealth => currentHealth;
     public bool IsDead => isDead;
+
+    
+    public float CurrentStamina => currentStamina;
+
+    // Ui에서 스태미나 비율을 표시할 때 사용
+    public float StaminaRatio => maxStamina > 0f ? currentStamina / maxStamina : 0f;
 
     [Header("Detection")]
     public float SoundPower = 10f;
@@ -58,8 +68,71 @@ public class PlayerStats : MonoBehaviour, IDamageable
     {
         currentHealth = maxHealth;
 
+        currentStamina = maxStamina;
+
         playerDodge = GetComponent<PlayerDodge>();
         playerState = GetComponent<PlayerState>();
+    }
+
+    // =========================================
+    // Stamina Management
+    // =========================================
+
+    // 스태미나가 충분한지 확인
+    public bool CanUseStamina(float amount)
+    {
+        if (isDead || amount < 0f)
+            return false;
+
+        return currentStamina >= amount;
+    }
+
+
+    // 스태미나 소모
+    public bool TryConsumeStamina(float amount)
+    {
+        if (!CanUseStamina(amount))
+            return false;
+
+        currentStamina = Mathf.Max(
+            0f,
+            currentStamina - amount
+        );
+
+        Debug.Log(
+            $"Stamina Consume: {amount} / " +
+            $"Stamina: {currentStamina}/{maxStamina}"
+        );
+
+        return true;
+    }
+
+
+    // 스태미나 회복
+    public void RestoreStamina(float amount)
+    {
+        if (isDead || amount <= 0f)
+            return;
+
+        currentStamina = Mathf.Min(
+            currentStamina + amount,
+            maxStamina
+        );
+
+        Debug.Log(
+            $"Stamina Restore: {amount} / " +
+            $"Stamina: {currentStamina}/{maxStamina}"
+        );
+    }
+
+
+    // 스태미나 최대치 증가
+    public void IncreaseMaxStamina(float amount)
+    {
+        if (amount <= 0f)
+            return;
+
+        maxStamina += amount;
     }
 
 

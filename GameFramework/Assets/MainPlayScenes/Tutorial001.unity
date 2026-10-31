@@ -5992,7 +5992,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
   maxHealth: 100
   SoundPower: 10
-  criticalChance: 0.05
+  criticalChanceBonus: 0
   criticalDamageBonus: 0.5
   slashDamageBonus: 0
   pierceDamageBonus: 0
@@ -6011,8 +6011,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
   maxHealth: 100
   SoundPower: 10
-  criticalChance: 0.05
-  criticalDamageBonus: 0.5
+  criticalChanceBonus: 0
+  criticalDamageBonus: 110
   slashDamageBonus: 0
   pierceDamageBonus: 0
   bluntDamageBonus: 0

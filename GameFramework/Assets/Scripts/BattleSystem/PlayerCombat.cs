@@ -9,11 +9,12 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] private AttackHitbox attackHitbox;
     [SerializeField] private PlayerComboSequence comboSequence;
     [SerializeField] private AttackMovementController attackMovementController;
+    [SerializeField] private PlayerStats playerStats;
 
     [Header("Visual")]
     [SerializeField] private Transform visualRoot;
 
-    [SerializeField] private PlayerStats playerStats;
+ 
 
     private AttackDefinition currentAttack;
 
@@ -52,6 +53,8 @@ public class PlayerCombat : MonoBehaviour
 
         if (playerStats == null)
             playerStats = GetComponent<PlayerStats>();
+
+        
     }
 
     private void Update()
@@ -147,6 +150,20 @@ public class PlayerCombat : MonoBehaviour
         if (attack == null)
             return;
 
+
+        // 스태미나 확인 및 소모
+        if (playerStats == null)
+        {
+            Debug.LogError("PlayerStats가 연결되지 않았습니다.");
+            return;
+        }
+
+        if (!playerStats.TryConsumeStamina(attack.StaminaCost))
+        {
+            Debug.Log("스태미나 부족! 공격할 수 없습니다.");
+            return;
+        }
+
         currentSequenceIndex = sequenceIndex;
         currentAttack = attack;
 
@@ -229,6 +246,14 @@ public class PlayerCombat : MonoBehaviour
                     (currentSequenceIndex + 1) % comboSequence.Count;
 
                 StartAttack(nextIndex);
+
+                // 스태미나 부족 등의 이유로 다음 공격이 시작되지 않았다면
+                // 현재 공격을 정상적으로 종료한다.
+                if (isAttacking && currentAttack != null &&
+                    currentSequenceIndex != nextIndex)
+                {
+                    EndAttack();
+                }
             }
             else
             {

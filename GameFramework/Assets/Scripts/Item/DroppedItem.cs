@@ -8,6 +8,9 @@ public class DroppedItem : MonoBehaviour
     [SerializeField] private string itemId = "Ba"; // 인벤토리에 들어갈 아이템 ID
     [SerializeField] private int amount = 5;       // 한 번에 획득할 개수
 
+    //[Header("스태미나 회복")]
+    //playerStats.RestoreStamina(20f);
+
     private void Awake()
     {
         // 안전장치: 동그라미 콜라이더가 무조건 Trigger(통과 가능) 상태가 되도록 설정

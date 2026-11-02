@@ -17,6 +17,7 @@ MonoBehaviour:
   icon: {fileID: -2548127014694297686, guid: d2c041e5a0132d641afe1a9210426365, type: 3}
   animatorStateName: Attack01
   damage: 10
+  staminaCost: 10
   attackType: 0
   hitboxStart: 0.213
   hitboxEnd: 0.837

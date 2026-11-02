@@ -1,15 +1,23 @@
 using UnityEngine;
-
+using System;
 public class PlayerStats : MonoBehaviour, IDamageable
 {
     [Header("체력")]
     [SerializeField] private int maxHealth = 100;
 
     [Header("스태미나")]
+    [Min(0f)]
     [SerializeField] private float maxStamina = 100f;
+
+    [Min(0f)]
+    [SerializeField] private float staminaRecoveryPerSecond = 20f;
+
+    [Min(0f)]
+    [SerializeField] private float staminaRecoveryDelay = 1.5f;
 
     private int currentHealth;
     private float currentStamina;
+    private float staminaRecoveryTimer;
 
     private PlayerDodge playerDodge;
     private PlayerState playerState;
@@ -17,13 +25,17 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     public int MaxHealth => maxHealth;
     public int CurrentHealth => currentHealth;
+
+
     public bool IsDead => isDead;
 
-    
+    public float MaxStamina => maxStamina;
     public float CurrentStamina => currentStamina;
 
     // Ui에서 스태미나 비율을 표시할 때 사용
     public float StaminaRatio => maxStamina > 0f ? currentStamina / maxStamina : 0f;
+
+    public event Action<float, float> OnStaminaChanged;
 
     [Header("Detection")]
     public float SoundPower = 10f;
@@ -74,6 +86,54 @@ public class PlayerStats : MonoBehaviour, IDamageable
         playerState = GetComponent<PlayerState>();
     }
 
+    private void Update()
+    {
+        UpdateStaminaRecovery();
+    }
+
+    private void UpdateStaminaRecovery()
+    {
+        if (isDead)
+            return;
+
+        if (currentStamina >= maxStamina)
+            return;
+
+        // 스태미나 회복 대기 시간
+        if (staminaRecoveryTimer > 0f)
+        {
+            staminaRecoveryTimer -= Time.deltaTime;
+            staminaRecoveryTimer = Mathf.Max(
+                0f,
+                staminaRecoveryTimer
+            );
+
+            return;
+        }
+
+        // 공격 중에는 회복하지 않는다.
+        // 대기 시간은 공격 중에도 계속 감소한다.
+        if (playerState != null &&
+            playerState.Is(PlayerStateType.Attack))
+        {
+            return;
+        }
+
+        float previousStamina = currentStamina;
+
+        currentStamina += staminaRecoveryPerSecond * Time.deltaTime;
+
+        currentStamina = Mathf.Min(
+            currentStamina,
+            maxStamina
+        );
+
+        if (!Mathf.Approximately(previousStamina, currentStamina))
+        {
+            NotifyStaminaChanged();
+        }
+    }
+
     // =========================================
     // Stamina Management
     // =========================================
@@ -88,27 +148,24 @@ public class PlayerStats : MonoBehaviour, IDamageable
     }
 
 
-    // 스태미나 소모
+
     public bool TryConsumeStamina(float amount)
     {
         if (!CanUseStamina(amount))
             return false;
 
-        currentStamina = Mathf.Max(
-            0f,
-            currentStamina - amount
-        );
+        if (amount <= 0f)
+            return true;
 
-        Debug.Log(
-            $"Stamina Consume: {amount} / " +
-            $"Stamina: {currentStamina}/{maxStamina}"
-        );
+        currentStamina -= amount;
+
+        staminaRecoveryTimer = staminaRecoveryDelay;
+
+        NotifyStaminaChanged();
 
         return true;
     }
 
-
-    // 스태미나 회복
     public void RestoreStamina(float amount)
     {
         if (isDead || amount <= 0f)
@@ -119,21 +176,29 @@ public class PlayerStats : MonoBehaviour, IDamageable
             maxStamina
         );
 
-        Debug.Log(
-            $"Stamina Restore: {amount} / " +
-            $"Stamina: {currentStamina}/{maxStamina}"
+        NotifyStaminaChanged();
+    }
+
+    public void IncreaseMaxStamina(float amount)
+    {
+        if (isDead || amount <= 0f)
+            return;
+
+        maxStamina += amount;
+
+        NotifyStaminaChanged();
+    }
+
+    private void NotifyStaminaChanged()
+    {
+        OnStaminaChanged?.Invoke(
+            currentStamina,
+            maxStamina
         );
     }
 
 
-    // 스태미나 최대치 증가
-    public void IncreaseMaxStamina(float amount)
-    {
-        if (amount <= 0f)
-            return;
-
-        maxStamina += amount;
-    }
+   
 
 
     // =========================================
@@ -161,7 +226,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
         );
 
         // 3. 크리티컬 판정
-        isCritical = Random.value < finalCriticalChance;
+        isCritical = UnityEngine.Random.value < finalCriticalChance;
 
         // 4. 크리티컬 추가 피해
         if (isCritical)

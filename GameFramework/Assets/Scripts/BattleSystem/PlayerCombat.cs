@@ -14,7 +14,19 @@ public class PlayerCombat : MonoBehaviour
     [Header("Visual")]
     [SerializeField] private Transform visualRoot;
 
- 
+
+
+    [Header("Animation Settings")]
+    [SerializeField] private string idleAnimatorStateName = "Idle";
+
+    [SerializeField, Min(0.1f)]
+    private float attackStateEntryTimeout = 0.75f;
+
+    // 현재 공격 애니메이션 상태 확인
+    private int expectedAttackStateHash;
+    private float attackStartTime;
+    private bool attackStateEntered;
+
 
     private AttackDefinition currentAttack;
 
@@ -136,32 +148,31 @@ public class PlayerCombat : MonoBehaviour
     // Start Attack
     // =====================================================
 
-    private void StartAttack(int sequenceIndex)
-    {
-        if (comboSequence == null || comboSequence.Count == 0)
-            return;
 
-        if (sequenceIndex < 0 || sequenceIndex >= comboSequence.Count)
-            return;
+    private bool StartAttack(int sequenceIndex)
+    {
+        if (comboSequence == null ||
+            comboSequence.Count == 0)
+            return false;
+
+        if (sequenceIndex < 0 ||
+            sequenceIndex >= comboSequence.Count)
+            return false;
+
+        if (animator == null || playerStats == null)
+            return false;
 
         AttackDefinition attack =
             comboSequence.GetAttackAt(sequenceIndex);
 
         if (attack == null)
-            return;
+            return false;
 
-
-        // 스태미나 확인 및 소모
-        if (playerStats == null)
-        {
-            Debug.LogError("PlayerStats가 연결되지 않았습니다.");
-            return;
-        }
-
+        // 공격 시작 전에 스태미나 확인 및 소모
         if (!playerStats.TryConsumeStamina(attack.StaminaCost))
         {
-            Debug.Log("스태미나 부족! 공격할 수 없습니다.");
-            return;
+            Debug.Log("스태미나 부족! 공격을 시작할 수 없습니다.");
+            return false;
         }
 
         currentSequenceIndex = sequenceIndex;
@@ -169,7 +180,27 @@ public class PlayerCombat : MonoBehaviour
 
         UpdateAttackDirection();
 
-        // 현재 공격의 이동 설정 전달
+        isAttacking = true;
+        comboBuffered = false;
+
+        // 애니메이션 상태 확인 초기화
+        string stateName = currentAttack.AnimatorStateName;
+
+        int lastDot = stateName.LastIndexOf('.');
+
+        string shortStateName = lastDot >= 0
+            ? stateName.Substring(lastDot + 1)
+            : stateName;
+
+        expectedAttackStateHash =
+            Animator.StringToHash(shortStateName);
+
+        attackStartTime = Time.time;
+        attackStateEntered = false;
+
+        SetHitbox(false);
+
+        // 공격 이동 시작
         if (attackMovementController != null)
         {
             attackMovementController.BeginAttack(
@@ -178,12 +209,6 @@ public class PlayerCombat : MonoBehaviour
             );
         }
 
-
-        isAttacking = true;
-        comboBuffered = false;
-
-        SetHitbox(false);
-
         playerState.SetState(PlayerStateType.Attack);
 
         animator.Play(
@@ -191,26 +216,75 @@ public class PlayerCombat : MonoBehaviour
             0,
             0f
         );
+
+        return true;
     }
+
 
     // =====================================================
     // Attack Update
     // =====================================================
 
+
     private void UpdateAttack()
     {
-        if (currentAttack == null)
+        if (currentAttack == null || animator == null)
+        {
+            EndAttack();
             return;
+        }
 
         AnimatorStateInfo stateInfo =
             animator.GetCurrentAnimatorStateInfo(0);
 
-        if (!stateInfo.IsName(currentAttack.AnimatorStateName))
+        // 현재 재생 중인 상태가 공격 애니메이션인지 확인
+        bool isExpectedState =
+            stateInfo.shortNameHash == expectedAttackStateHash ||
+            stateInfo.IsName(currentAttack.AnimatorStateName);
+
+        if (!isExpectedState)
+        {
+            // 공격 애니메이션으로 전환 중인지 확인
+            if (animator.IsInTransition(0))
+            {
+                AnimatorStateInfo nextState =
+                    animator.GetNextAnimatorStateInfo(0);
+
+                bool nextIsAttack =
+                    nextState.shortNameHash == expectedAttackStateHash ||
+                    nextState.IsName(currentAttack.AnimatorStateName);
+
+                if (nextIsAttack)
+                    return;
+            }
+
+            // 아직 공격 애니메이션에 진입하지 못한 경우
+            if (!attackStateEntered)
+            {
+                if (Time.time - attackStartTime >= attackStateEntryTimeout)
+                {
+                    Debug.LogError(
+                        $"공격 애니메이션을 찾지 못했습니다: " +
+                        $"{currentAttack.AnimatorStateName}",
+                        this
+                    );
+
+                    EndAttack();
+                }
+
+                return;
+            }
+
+            // 공격 애니메이션이 다른 상태로 빠져나갔다면 종료
+            EndAttack();
             return;
+        }
+
+        attackStateEntered = true;
 
         float normalizedTime = stateInfo.normalizedTime;
 
-        // 공격 애니메이션에 맞춰 공격 이동 갱신
+        // 공격 이동 업데이트
         if (attackMovementController != null)
         {
             attackMovementController.UpdateAttackProgress(
@@ -235,7 +309,7 @@ public class PlayerCombat : MonoBehaviour
             SetHitbox(false);
         }
 
-        // 애니메이션 종료
+        // 공격 애니메이션 종료
         if (normalizedTime >= 1f)
         {
             SetHitbox(false);
@@ -245,12 +319,8 @@ public class PlayerCombat : MonoBehaviour
                 int nextIndex =
                     (currentSequenceIndex + 1) % comboSequence.Count;
 
-                StartAttack(nextIndex);
-
-                // 스태미나 부족 등의 이유로 다음 공격이 시작되지 않았다면
-                // 현재 공격을 정상적으로 종료한다.
-                if (isAttacking && currentAttack != null &&
-                    currentSequenceIndex != nextIndex)
+                // 다음 공격의 스태미나가 부족하면 콤보 종료
+                if (!StartAttack(nextIndex))
                 {
                     EndAttack();
                 }
@@ -261,6 +331,7 @@ public class PlayerCombat : MonoBehaviour
             }
         }
     }
+
 
     // =====================================================
     // Hitbox Shape
@@ -377,19 +448,41 @@ public class PlayerCombat : MonoBehaviour
 
     private void EndAttack()
     {
-        if (attackMovementController != null)
-            attackMovementController.CancelAttackMovement();
+        if (!isAttacking)
+            return;
 
+        // 공격 이동 해제
+        if (attackMovementController != null)
+        {
+            attackMovementController.CancelAttackMovement();
+        }
+
+        // 히트박스 비활성화
         SetHitbox(false);
 
         isAttacking = false;
         comboBuffered = false;
+
         currentSequenceIndex = -1;
         currentAttack = null;
 
-        playerState.SetState(PlayerStateType.Normal);
+        attackStateEntered = false;
 
-        animator.Play("Idle");
+        // 플레이어 상태 복구
+        if (playerState != null)
+        {
+            playerState.SetState(PlayerStateType.Normal);
+        }
+
+        // Idle 애니메이션으로 복귀
+        if (animator != null)
+        {
+            animator.Play(
+                idleAnimatorStateName,
+                0,
+                0f
+            );
+        }
     }
 
     private void OnDisable()

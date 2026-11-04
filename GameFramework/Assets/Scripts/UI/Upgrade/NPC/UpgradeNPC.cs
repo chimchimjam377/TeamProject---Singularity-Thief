@@ -9,7 +9,8 @@ public class UpgradeNPC : MonoBehaviour
     {
         if (isPlayerInRange && Input.GetKeyDown(KeyCode.F))
         {
-            uiManager.OpenUI();
+            // ¼öÁ¤µÊ: OpenUI -> OpenPanel
+            uiManager.OpenPanel();
         }
     }
 
@@ -27,7 +28,8 @@ public class UpgradeNPC : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = false;
-            uiManager.CloseUI(); // ¸Ö¾îÁö¸é UI °­Á¦ ´Ý±â
+            // ¼öÁ¤µÊ: CloseUI -> ClosePanel
+            uiManager.ClosePanel();
         }
     }
 }

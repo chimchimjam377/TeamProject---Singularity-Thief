@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+
 public class PlayerStats : MonoBehaviour, IDamageable
 {
     [Header("체력")]
@@ -8,10 +9,8 @@ public class PlayerStats : MonoBehaviour, IDamageable
     [Header("스태미나")]
     [Min(0f)]
     [SerializeField] private float maxStamina = 100f;
-
     [Min(0f)]
     [SerializeField] private float staminaRecoveryPerSecond = 20f;
-
     [Min(0f)]
     [SerializeField] private float staminaRecoveryDelay = 1.5f;
 
@@ -23,17 +22,28 @@ public class PlayerStats : MonoBehaviour, IDamageable
     private PlayerState playerState;
     private bool isDead;
 
-    public int MaxHealth => maxHealth;
+    // =========================================
+    // 💡 [추가됨] 장비(신체 강화)로 얻는 보너스 스탯
+    // =========================================
+    private int equipHealthBonus = 0;
+    private float equipStaminaBonus = 0f;
+    private float equipCritChance = 0f;
+    private float equipCritDamage = 0f;
+    private float equipSlash = 0f;
+    private float equipPierce = 0f;
+    private float equipBlunt = 0f;
+
+    // =========================================
+    // 💡 [수정됨] 기본 스탯 + 장비 보너스를 합산하여 반환하도록 변경
+    // =========================================
+    public int MaxHealth => maxHealth + equipHealthBonus;
     public int CurrentHealth => currentHealth;
-
-
     public bool IsDead => isDead;
 
-    public float MaxStamina => maxStamina;
+    public float MaxStamina => maxStamina + equipStaminaBonus;
     public float CurrentStamina => currentStamina;
 
-    // Ui에서 스태미나 비율을 표시할 때 사용
-    public float StaminaRatio => maxStamina > 0f ? currentStamina / maxStamina : 0f;
+    public float StaminaRatio => MaxStamina > 0f ? currentStamina / MaxStamina : 0f;
 
     public event Action<float, float> OnStaminaChanged;
 
@@ -41,7 +51,6 @@ public class PlayerStats : MonoBehaviour, IDamageable
     public float SoundPower = 10f;
 
     [Header("Critical Stats")]
-
     [Tooltip("모든 공격에 적용되는 추가 크리티컬 확률")]
     [Range(0f, 1f)]
     [SerializeField] private float criticalChanceBonus = 0f;
@@ -50,16 +59,14 @@ public class PlayerStats : MonoBehaviour, IDamageable
     [Min(0f)]
     [SerializeField] private float criticalDamageBonus = 0.5f;
 
-    public float CriticalChanceBonus => criticalChanceBonus;
-    public float CriticalDamageBonus => criticalDamageBonus;
-
+    // 크리티컬에도 장비 스탯 합산
+    public float CriticalChanceBonus => criticalChanceBonus + equipCritChance;
+    public float CriticalDamageBonus => criticalDamageBonus + equipCritDamage;
 
     // =========================================
     // Attack Type Damage Bonuses
     // =========================================
-
     [Header("Attack Type Damage Bonus")]
-
     [Tooltip("베기 피해 증가. 0.2 = 20%")]
     [Min(0f)]
     [SerializeField] private float slashDamageBonus = 0f;
@@ -72,14 +79,14 @@ public class PlayerStats : MonoBehaviour, IDamageable
     [Min(0f)]
     [SerializeField] private float bluntDamageBonus = 0f;
 
-    public float SlashDamageBonus => slashDamageBonus;
-    public float PierceDamageBonus => pierceDamageBonus;
-    public float BluntDamageBonus => bluntDamageBonus;
+    // 공격 타입에도 장비 스탯 합산
+    public float SlashDamageBonus => slashDamageBonus + equipSlash;
+    public float PierceDamageBonus => pierceDamageBonus + equipPierce;
+    public float BluntDamageBonus => bluntDamageBonus + equipBlunt;
 
     private void Awake()
     {
         currentHealth = maxHealth;
-
         currentStamina = maxStamina;
 
         playerDodge = GetComponent<PlayerDodge>();
@@ -91,42 +98,47 @@ public class PlayerStats : MonoBehaviour, IDamageable
         UpdateStaminaRecovery();
     }
 
+    // =========================================
+    // 💡 [핵심 추가됨] 에러가 났던 함수! 장비 스탯을 받아와서 저장합니다.
+    // =========================================
+    public void ApplyEquipmentBonuses(int hBonus, float sBonus, float ccBonus, float cdBonus, float slBonus, float piBonus, float blBonus)
+    {
+        equipHealthBonus = hBonus;
+        equipStaminaBonus = sBonus;
+        equipCritChance = ccBonus;
+        equipCritDamage = cdBonus;
+        equipSlash = slBonus;
+        equipPierce = piBonus;
+        equipBlunt = blBonus;
+
+        // 최대치가 바뀌었을 때 현재 체력/스태미나가 최대치를 넘지 않도록 보정
+        if (currentStamina > MaxStamina) currentStamina = MaxStamina;
+        if (currentHealth > MaxHealth) currentHealth = MaxHealth;
+
+        NotifyStaminaChanged();
+    }
+
+    // =========================================
+    // 아래는 기존 시스템 완벽 유지
+    // =========================================
     private void UpdateStaminaRecovery()
     {
-        if (isDead)
-            return;
+        if (isDead) return;
+        if (currentStamina >= MaxStamina) return;
 
-        if (currentStamina >= maxStamina)
-            return;
-
-        // 스태미나 회복 대기 시간
         if (staminaRecoveryTimer > 0f)
         {
             staminaRecoveryTimer -= Time.deltaTime;
-            staminaRecoveryTimer = Mathf.Max(
-                0f,
-                staminaRecoveryTimer
-            );
-
+            staminaRecoveryTimer = Mathf.Max(0f, staminaRecoveryTimer);
             return;
         }
 
-        // 공격 중에는 회복하지 않는다.
-        // 대기 시간은 공격 중에도 계속 감소한다.
-        if (playerState != null &&
-            playerState.Is(PlayerStateType.Attack))
-        {
-            return;
-        }
+        if (playerState != null && playerState.Is(PlayerStateType.Attack)) return;
 
         float previousStamina = currentStamina;
 
         currentStamina += staminaRecoveryPerSecond * Time.deltaTime;
-
-        currentStamina = Mathf.Min(
-            currentStamina,
-            maxStamina
-        );
+        currentStamina = Mathf.Min(currentStamina, MaxStamina);
 
         if (!Mathf.Approximately(previousStamina, currentStamina))
         {
@@ -134,238 +146,118 @@ public class PlayerStats : MonoBehaviour, IDamageable
         }
     }
 
-    // =========================================
-    // Stamina Management
-    // =========================================
-
-    // 스태미나가 충분한지 확인
     public bool CanUseStamina(float amount)
     {
-        if (isDead || amount < 0f)
-            return false;
-
+        if (isDead || amount < 0f) return false;
         return currentStamina >= amount;
     }
 
-
-
     public bool TryConsumeStamina(float amount)
     {
-        if (!CanUseStamina(amount))
-            return false;
-
-        if (amount <= 0f)
-            return true;
+        if (!CanUseStamina(amount)) return false;
+        if (amount <= 0f) return true;
 
         currentStamina -= amount;
-
         staminaRecoveryTimer = staminaRecoveryDelay;
-
         NotifyStaminaChanged();
-
         return true;
     }
 
     public void RestoreStamina(float amount)
     {
-        if (isDead || amount <= 0f)
-            return;
-
-        currentStamina = Mathf.Min(
-            currentStamina + amount,
-            maxStamina
-        );
-
+        if (isDead || amount <= 0f) return;
+        currentStamina = Mathf.Min(currentStamina + amount, MaxStamina);
         NotifyStaminaChanged();
     }
 
     public void IncreaseMaxStamina(float amount)
     {
-        if (isDead || amount <= 0f)
-            return;
-
+        if (isDead || amount <= 0f) return;
         maxStamina += amount;
-
         NotifyStaminaChanged();
     }
 
     private void NotifyStaminaChanged()
     {
-        OnStaminaChanged?.Invoke(
-            currentStamina,
-            maxStamina
-        );
+        OnStaminaChanged?.Invoke(currentStamina, MaxStamina);
     }
 
-
-   
-
-
-    // =========================================
-    // Attack Damage Calculation
-    // =========================================
-
-    public int CalculateAttackDamage(
-    AttackDefinition attack,
-    out bool isCritical)
+    public int CalculateAttackDamage(AttackDefinition attack, out bool isCritical)
     {
         isCritical = false;
+        if (attack == null) return 0;
 
-        if (attack == null)
-            return 0;
-
-        // 1. 공격 유형별 피해량 증가
+        // 대문자로 시작하는 Property(합산된 스탯)를 사용하여 계산
         float typeBonus = GetAttackTypeDamageBonus(attack.Type);
+        float finalDamage = attack.Damage * (1f + typeBonus);
 
-        float finalDamage =
-            attack.Damage * (1f + typeBonus);
-
-        // 2. 공격 고유 확률 + 플레이어 추가 확률
-        float finalCriticalChance = Mathf.Clamp01(
-            attack.CriticalChance + criticalChanceBonus
-        );
-
-        // 3. 크리티컬 판정
+        float finalCriticalChance = Mathf.Clamp01(attack.CriticalChance + CriticalChanceBonus);
         isCritical = UnityEngine.Random.value < finalCriticalChance;
 
-        // 4. 크리티컬 추가 피해
         if (isCritical)
         {
-            finalDamage *= 1f + criticalDamageBonus;
+            finalDamage *= 1f + CriticalDamageBonus;
         }
 
-        return Mathf.Max(
-            0,
-            Mathf.RoundToInt(finalDamage)
-        );
+        return Mathf.Max(0, Mathf.RoundToInt(finalDamage));
     }
-
-
-    // =========================================
-    // Get Attack Type Bonus
-    // =========================================
 
     private float GetAttackTypeDamageBonus(AttackType type)
     {
         switch (type)
         {
-            case AttackType.Slash:
-                return slashDamageBonus;
-
-            case AttackType.Pierce:
-                return pierceDamageBonus;
-
-            case AttackType.Blunt:
-                return bluntDamageBonus;
-
-            default:
-                return 0f;
+            case AttackType.Slash: return SlashDamageBonus;
+            case AttackType.Pierce: return PierceDamageBonus;
+            case AttackType.Blunt: return BluntDamageBonus;
+            default: return 0f;
         }
     }
 
+    public void AddCriticalChance(float amount) { criticalChanceBonus = Mathf.Clamp01(criticalChanceBonus + amount); }
+    public void AddCriticalDamageBonus(float amount) { criticalDamageBonus = Mathf.Max(0f, criticalDamageBonus + amount); }
 
-    // =========================================
-    // Runtime Stat Upgrades
-    // =========================================
-
-    // 크리티컬 확률 증가
-    // amount = 0.05f라면 5%p 증가
-    public void AddCriticalChance(float amount)
-    {
-        criticalChanceBonus = Mathf.Clamp01(
-        criticalChanceBonus + amount
-         );
-    }
-
-    // 크리티컬 추가 피해 증가
-    // amount = 0.25f라면 추가 피해율 25%p 증가
-    public void AddCriticalDamageBonus(float amount)
-    {
-        criticalDamageBonus = Mathf.Max(
-            0f,
-            criticalDamageBonus + amount
-        );
-    }
-
-    // 특정 공격 유형의 피해 증가
-    // amount = 0.1f라면 해당 유형의 피해 증가율 10%p 추가
-    public void AddAttackTypeDamageBonus(
-        AttackType type,
-        float amount)
+    public void AddAttackTypeDamageBonus(AttackType type, float amount)
     {
         switch (type)
         {
-            case AttackType.Slash:
-                slashDamageBonus = Mathf.Max(
-                    0f,
-                    slashDamageBonus + amount
-                );
-                break;
-
-            case AttackType.Pierce:
-                pierceDamageBonus = Mathf.Max(
-                    0f,
-                    pierceDamageBonus + amount
-                );
-                break;
-
-            case AttackType.Blunt:
-                bluntDamageBonus = Mathf.Max(
-                    0f,
-                    bluntDamageBonus + amount
-                );
-                break;
+            case AttackType.Slash: slashDamageBonus = Mathf.Max(0f, slashDamageBonus + amount); break;
+            case AttackType.Pierce: pierceDamageBonus = Mathf.Max(0f, pierceDamageBonus + amount); break;
+            case AttackType.Blunt: bluntDamageBonus = Mathf.Max(0f, bluntDamageBonus + amount); break;
         }
     }
 
     public void TakeDamage(int damage, GameObject attacker)
     {
-        if (isDead || damage <= 0)
-            return;
-
-        // 닷지 무적 판정 유지
-        if (playerDodge != null && playerDodge.IsInvincible)
-            return;
+        if (isDead || damage <= 0) return;
+        if (playerDodge != null && playerDodge.IsInvincible) return;
 
         currentHealth -= damage;
         currentHealth = Mathf.Max(currentHealth, 0);
 
-        Debug.Log($"Player Damage: {damage} / HP: {currentHealth}/{maxHealth}");
-
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
+        if (currentHealth <= 0) Die();
     }
 
     private void Die()
     {
-        if (isDead)
-            return;
-
+        if (isDead) return;
         isDead = true;
 
-        if (playerState != null)
-            playerState.SetState(PlayerStateType.Dead);
+        if (playerState != null) playerState.SetState(PlayerStateType.Dead);
 
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
-
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;
         }
 
-        Debug.Log("Player Dead");
         gameObject.SetActive(false);
     }
 
     public void Heal(int amount)
     {
-        if (isDead || amount <= 0)
-            return;
-
+        if (isDead || amount <= 0) return;
         currentHealth += amount;
-        currentHealth = Mathf.Min(currentHealth, maxHealth);
+        currentHealth = Mathf.Min(currentHealth, MaxHealth);
     }
 }

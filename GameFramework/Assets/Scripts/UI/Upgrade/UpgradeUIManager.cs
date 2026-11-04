@@ -1,90 +1,63 @@
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro; // TextMeshPro를 사용하기 위해 추가
+using TMPro;
 
 public class UpgradeUIManager : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private GameObject uiPanel;
-    [SerializeField] private PlayerUpgrades playerUpgrades;
+    public GameObject uiPanel;
+    public PlayerUpgrades playerUpgrades;
 
     [Header("Center Info Panel")]
-    [SerializeField] private TextMeshProUGUI selectedPartNameText; // TMP용 변수
-    [SerializeField] private TextMeshProUGUI currentLevelText;     // TMP용 변수
-    [SerializeField] private TextMeshProUGUI costText;             // TMP용 변수
-    [SerializeField] private Button doUpgradeButton;
+    public TextMeshProUGUI selectedPartNameText;
+    public TextMeshProUGUI currentLevelText;
+    public TextMeshProUGUI costText;
 
     private BodyPart currentSelectedPart;
 
-    private void Start()
-    {
-        // uiPanel.SetActive(false); // 테스트를 위해 잠시 주석 처리하거나 지우셔도 됩니다.
-        doUpgradeButton.onClick.AddListener(OnDoUpgradeButtonClicked);
-    }
-
-    public void OpenUI()
-    {
-        uiPanel.SetActive(true);
-        SelectBodyPart((int)BodyPart.Head);
-    }
-
-    public void CloseUI()
-    {
-        uiPanel.SetActive(false);
-    }
-
-    public void SelectBodyPart(int partIndex)
+    // 유니티 버튼 OnClick에서 숫자를 넘겨받음 (0:Head, 1:LeftArm, 2:RightArm, 3:LeftLeg, 4:RightLeg)
+    public void OnSelectBodyPart(int partIndex)
     {
         currentSelectedPart = (BodyPart)partIndex;
-        UpdateCenterPanel();
+        UpdateUI();
     }
 
-    private void UpdateCenterPanel()
+    public void UpdateUI()
     {
-        var data = playerUpgrades.GetUpgradeData(currentSelectedPart);
+        PlayerUpgrades.UpgradeData data = playerUpgrades.GetUpgradeData(currentSelectedPart);
+        EquipmentPartData soData = playerUpgrades.library.GetPartData(currentSelectedPart);
 
-        selectedPartNameText.text = GetPartNameInKorean(currentSelectedPart);
+        if (data == null || soData == null) return;
+
+        selectedPartNameText.text = $"부위 이름: {soData.partName}";
+        currentLevelText.text = $"Lv: {data.currentLevel}";
 
         if (data.currentLevel >= data.maxLevel)
         {
-            currentLevelText.text = $"Lv. MAX";
-            costText.text = "강화 완료";
-            doUpgradeButton.interactable = false;
+            costText.text = "최대 레벨 도달";
         }
         else
         {
-            currentLevelText.text = $"Lv. {data.currentLevel}";
-            costText.text = $"필요한 재화: {data.GetUpgradeCost()}";
-            doUpgradeButton.interactable = true;
+            costText.text = $"필요한 재화(Ba): {data.GetUpgradeCost()}";
         }
     }
 
-    private void OnDoUpgradeButtonClicked()
+    // 중앙의 '강화' 버튼 이벤트
+    public void OnClickDoUpgrade()
     {
-        if (playerUpgrades.TryUpgrade(currentSelectedPart))
+        bool isSuccess = playerUpgrades.TryUpgrade(currentSelectedPart);
+
+        if (isSuccess)
         {
-            UpdateCenterPanel();
+            UpdateUI(); // 재화가 소모되고 렙업했으니 텍스트 갱신
         }
     }
 
-    private string GetPartNameInKorean(BodyPart part)
+    public void ClosePanel()
     {
-        return part switch
-        {
-            BodyPart.Head => "머리",
-            BodyPart.LeftArm => "왼팔",
-            BodyPart.RightArm => "오른팔",
-            BodyPart.LeftLeg => "왼다리",
-            BodyPart.RightLeg => "오른다리",
-            _ => "알 수 없음"
-        };
+        uiPanel.SetActive(false);
     }
-    private void Update()
+    public void OpenPanel()
     {
-        // UI 패널이 켜져 있을 때 ESC 키를 누르면 닫힘
-        if (uiPanel.activeSelf && Input.GetKeyDown(KeyCode.Escape))
-        {
-            CloseUI();
-        }
+        uiPanel.SetActive(true);
     }
 }

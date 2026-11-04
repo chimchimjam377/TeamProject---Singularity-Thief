@@ -1,6 +1,6 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
-using GameFramework.Gameplay; // InventoryManager »ç¿ëÀ» À§ÇÑ ³×ÀÓ½ºÆäÀÌ½º
+using GameFramework.Gameplay;
 
 public enum BodyPart
 {
@@ -19,22 +19,26 @@ public class PlayerUpgrades : MonoBehaviour
         public BodyPart part;
         public int currentLevel = 0;
         public int maxLevel = 5;
-        public int baseCost = 10; // 1¹ø ´©¸¦¶§ 10°³¾¿ µé¾î¿À´Ï ±âº» ºñ¿ëÀ» 10À¸·Î Á¶Á¤
+        public int baseCost = 10;
 
-        // ·¹º§¿¡ µû¸¥ ÇÊ¿ä ÀçÈ­ °è»ê (¿¹: 10 -> 20 -> 30)
         public int GetUpgradeCost()
         {
             return baseCost + (currentLevel * baseCost);
         }
     }
 
+    [Header("ìŠ¤íƒ¯ ì ìš©ì„ ìœ„í•œ SO ë° ìŠ¤í¬ë¦½íŠ¸ ì—°ê²°")]
+    public EquipmentLibrary library; // ìŠ¤í¬ë¦½í„°ë¸” ì˜¤ë¸Œì íŠ¸ ë¼ì´ë¸ŒëŸ¬ë¦¬
+    public PlayerStats playerStats;  // í”Œë ˆì´ì–´ ìŠ¤íƒ¯ ìŠ¤í¬ë¦½íŠ¸
+
     [Header("Upgrade Settings")]
-    // Inventory_Demo¿¡¼­ 1¹øÀ» ´©¸¦ ¶§ µé¾î¿À´Â ¾ÆÀÌÅÛ ID
     [SerializeField] private string currencyItemId = "Ba";
     [SerializeField] private List<UpgradeData> upgrades = new List<UpgradeData>();
 
     private void Awake()
     {
+        if (playerStats == null) playerStats = GetComponent<PlayerStats>();
+
         if (upgrades.Count == 0)
         {
             upgrades.Add(new UpgradeData { part = BodyPart.Head });
@@ -50,7 +54,6 @@ public class PlayerUpgrades : MonoBehaviour
         return upgrades.Find(u => u.part == part);
     }
 
-    // ÀçÈ­¸¦ ¼Ò¸ğÇÏ¿© ½ÇÁ¦ °­È­¸¦ ÁøÇà
     public bool TryUpgrade(BodyPart part)
     {
         UpgradeData data = GetUpgradeData(part);
@@ -60,19 +63,52 @@ public class PlayerUpgrades : MonoBehaviour
 
         int cost = data.GetUpgradeCost();
 
-        // InventoryManager¸¦ ÅëÇØ "Ba" ÀçÈ­°¡ ÃæºĞÇÑÁö È®ÀÎ
+        // InventoryManagerë¥¼ í†µí•´ "Ba" ì¬í™”ê°€ ì¶©ë¶„í•œì§€ í™•ì¸
         if (InventoryManager.Instance.Has(currencyItemId, cost))
         {
-            // ÀçÈ­ ¼Ò¸ğ ÈÄ ·¹º§ ¾÷
             InventoryManager.Instance.RemoveItem(currencyItemId, cost);
             data.currentLevel++;
-            Debug.Log($"[{data.part}] °­È­ ¼º°ø! ÇöÀç ·¹º§: {data.currentLevel}");
+            Debug.Log($"[{data.part}] ê°•í™” ì„±ê³µ! í˜„ì¬ ë ˆë²¨: {data.currentLevel}");
+
+            // ğŸ’¡ [ì¶”ê°€ë¨] ê°•í™” ì„±ê³µ ì‹œ SO ë°ì´í„°ë¥¼ ì½ì–´ì™€ì„œ ìŠ¤íƒ¯ ê°±ì‹ 
+            ApplyAllBonusesToPlayer();
+
             return true;
         }
         else
         {
-            Debug.LogWarning($"ÀçÈ­°¡ ºÎÁ·ÇÕ´Ï´Ù. ÇÊ¿ä·®: {cost}, º¸À¯·®: {InventoryManager.Instance.GetCount(currencyItemId)}");
+            Debug.LogWarning($"ì¬í™”ê°€ ë¶€ì¡±í•©ë‹ˆë‹¤. í•„ìš”ëŸ‰: {cost}, ë³´ìœ ëŸ‰: {InventoryManager.Instance.GetCount(currencyItemId)}");
             return false;
         }
+    }
+
+    // ğŸ’¡ [ì¶”ê°€ë¨] ëª¨ë“  ë¶€ìœ„ì˜ í˜„ì¬ ë ˆë²¨ê³¼ SO ìŠ¤íƒ¯ ì¦ê°€ëŸ‰ì„ ê³±í•´ì„œ í•©ì‚°
+    private void ApplyAllBonusesToPlayer()
+    {
+        if (library == null || playerStats == null) return;
+
+        int totalHp = 0;
+        float totalSp = 0, totalCritC = 0, totalCritD = 0, totalSlash = 0, totalPierce = 0, totalBlunt = 0;
+
+        foreach (var upgrade in upgrades)
+        {
+            // ë¼ì´ë¸ŒëŸ¬ë¦¬ì—ì„œ ì´ ë¶€ìœ„(Head, LeftArm ë“±)ì— í•´ë‹¹í•˜ëŠ” SO ë°ì´í„°ë¥¼ ê°€ì ¸ì˜´
+            EquipmentPartData data = library.GetPartData(upgrade.part);
+
+            if (data != null && upgrade.currentLevel > 0)
+            {
+                int level = upgrade.currentLevel;
+                totalHp += data.healthPerLevel * level;
+                totalSp += data.staminaPerLevel * level;
+                totalCritC += data.critChancePerLevel * level;
+                totalCritD += data.critDamagePerLevel * level;
+                totalSlash += data.slashPerLevel * level;
+                totalPierce += data.piercePerLevel * level;
+                totalBlunt += data.bluntPerLevel * level;
+            }
+        }
+
+        // ìµœì¢… í•©ì‚°ëœ ìŠ¤íƒ¯ì„ PlayerStatsì— ì´ì¤Œ
+        playerStats.ApplyEquipmentBonuses(totalHp, totalSp, totalCritC, totalCritD, totalSlash, totalPierce, totalBlunt);
     }
 }

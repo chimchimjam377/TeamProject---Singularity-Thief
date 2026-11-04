@@ -431,7 +431,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 458028760}
         m_TargetAssemblyTypeName: UpgradeUIManager, Assembly-CSharp
-        m_MethodName: SelectBodyPart
+        m_MethodName: OnSelectBodyPart
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -10638,7 +10638,6 @@ MonoBehaviour:
   selectedPartNameText: {fileID: 648305145}
   currentLevelText: {fileID: 543683795}
   costText: {fileID: 1351350306}
-  doUpgradeButton: {fileID: 1104659258}
 --- !u!224 &458028761
 RectTransform:
   m_ObjectHideFlags: 0
@@ -11594,7 +11593,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 458028760}
         m_TargetAssemblyTypeName: UpgradeUIManager, Assembly-CSharp
-        m_MethodName: SelectBodyPart
+        m_MethodName: OnSelectBodyPart
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -11956,7 +11955,10 @@ MonoBehaviour:
   attackHitbox: {fileID: 1757869664}
   comboSequence: {fileID: 963595140}
   attackMovementController: {fileID: 0}
+  playerStats: {fileID: 0}
   visualRoot: {fileID: 703995649}
+  idleAnimatorStateName: Idle
+  attackStateEntryTimeout: 0.75
 --- !u!114 &963595132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12088,6 +12090,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a49d59cd76cbf0c4dadd6900e8a1c864, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerUpgrades
+  library: {fileID: 11400000, guid: b2e02a94edd97b043940fdd45711040f, type: 2}
+  playerStats: {fileID: 963595142}
   currencyItemId: Ba
   upgrades: []
 --- !u!114 &963595140
@@ -12136,7 +12140,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
   maxHealth: 100
+  maxStamina: 100
+  staminaRecoveryPerSecond: 20
+  staminaRecoveryDelay: 1.5
   SoundPower: 10
+  criticalChanceBonus: 0
+  criticalDamageBonus: 0.5
+  slashDamageBonus: 0
+  pierceDamageBonus: 0
+  bluntDamageBonus: 0
 --- !u!1 &1068435444
 GameObject:
   m_ObjectHideFlags: 0
@@ -12351,7 +12363,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1104659259}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 458028760}
+        m_TargetAssemblyTypeName: UpgradeUIManager, Assembly-CSharp
+        m_MethodName: OnClickDoUpgrade
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1104659259
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12495,7 +12519,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 458028760}
         m_TargetAssemblyTypeName: UpgradeUIManager, Assembly-CSharp
-        m_MethodName: SelectBodyPart
+        m_MethodName: OnSelectBodyPart
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -13605,7 +13629,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 458028760}
         m_TargetAssemblyTypeName: UpgradeUIManager, Assembly-CSharp
-        m_MethodName: CloseUI
+        m_MethodName: ClosePanel
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -77923,7 +77947,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 302, y: -60}
+  m_AnchoredPosition: {x: 490, y: 93}
   m_SizeDelta: {x: 91.5611, y: 86.3264}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1886721549
@@ -77972,7 +77996,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 458028760}
         m_TargetAssemblyTypeName: UpgradeUIManager, Assembly-CSharp
-        m_MethodName: SelectBodyPart
+        m_MethodName: OnSelectBodyPart
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -78128,7 +78152,7 @@ MonoBehaviour:
     m_Bits: 0
   eyePoint: {fileID: 963595129}
   attackRange: 3
-  attackDamage: 30
+  attackDamage: 1
   attackCooldown: 0.5
   attackDuration: 0.5
   attackPoint: {fileID: 1671328509}
@@ -78394,7 +78418,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 492, y: 90}
+  m_AnchoredPosition: {x: 304, y: -62}
   m_SizeDelta: {x: 91.5611, y: 86.3264}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2079832128
@@ -78443,7 +78467,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 458028760}
         m_TargetAssemblyTypeName: UpgradeUIManager, Assembly-CSharp
-        m_MethodName: SelectBodyPart
+        m_MethodName: OnSelectBodyPart
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

@@ -5398,7 +5398,6 @@ MonoBehaviour:
   selectedPartNameText: {fileID: 1089501136}
   currentLevelText: {fileID: 1355201850}
   costText: {fileID: 1062704343}
-  doUpgradeButton: {fileID: 1127229518}
 --- !u!224 &1083251347
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5948,8 +5947,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a49d59cd76cbf0c4dadd6900e8a1c864, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerUpgrades
+  library: {fileID: 11400000, guid: b2e02a94edd97b043940fdd45711040f, type: 2}
+  playerStats: {fileID: 1139721851}
   currencyItemId: Ba
-  upgrades: []
+  upgrades:
+  - part: 0
+    currentLevel: 0
+    maxLevel: 0
+    baseCost: 0
+  - part: 1
+    currentLevel: 0
+    maxLevel: 0
+    baseCost: 0
+  - part: 2
+    currentLevel: 0
+    maxLevel: 0
+    baseCost: 0
+  - part: 3
+    currentLevel: 0
+    maxLevel: 0
+    baseCost: 0
+  - part: 4
+    currentLevel: 0
+    maxLevel: 0
+    baseCost: 0
 --- !u!4 &1139721839
 Transform:
   m_ObjectHideFlags: 0
@@ -35464,7 +35485,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1637094111
 Transform:
   m_ObjectHideFlags: 0

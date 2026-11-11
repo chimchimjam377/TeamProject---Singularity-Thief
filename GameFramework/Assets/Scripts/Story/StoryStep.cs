@@ -1,3 +1,4 @@
+
 using System;
 using UnityEngine;
 
@@ -28,13 +29,19 @@ public class StoryStep
     [Header("배경 변경")]
     [SerializeField] private Sprite backgroundSprite;
 
-    [Header("캐릭터 표시")]
+    [Header("캐릭터")]
     [SerializeField] private StoryCharacterSlot characterSlot;
-    [SerializeField] private Sprite characterSprite;
+
+    [SerializeField] private GameObject characterPrefab;
+
+    [SerializeField] private string characterAnimationStateName;
+
     [SerializeField] private bool flipHorizontal;
 
-    [Header("CG 표시")]
-    [SerializeField] private Sprite cgSprite;
+    [Header("CG")]
+    [SerializeField] private GameObject cgPrefab;
+
+    [SerializeField] private string cgAnimationStateName;
 
     [SerializeField]
     private bool hideCharactersWhenShowingCG = true;
@@ -50,10 +57,15 @@ public class StoryStep
     public Sprite BackgroundSprite => backgroundSprite;
 
     public StoryCharacterSlot CharacterSlot => characterSlot;
-    public Sprite CharacterSprite => characterSprite;
+    public GameObject CharacterPrefab => characterPrefab;
+    public string CharacterAnimationStateName =>
+        characterAnimationStateName;
+
     public bool FlipHorizontal => flipHorizontal;
 
-    public Sprite CGSprite => cgSprite;
+    public GameObject CGPrefab => cgPrefab;
+    public string CGAnimationStateName => cgAnimationStateName;
+
     public bool HideCharactersWhenShowingCG =>
         hideCharactersWhenShowingCG;
 

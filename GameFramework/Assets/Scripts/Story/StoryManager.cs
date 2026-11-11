@@ -103,7 +103,8 @@ public class StoryManager : MonoBehaviour
 
                     storyUI.ShowCharacter(
                         step.CharacterSlot,
-                        step.CharacterSprite,
+                        step.CharacterPrefab,
+                        step.CharacterAnimationStateName,
                         step.FlipHorizontal
                     );
 
@@ -120,7 +121,8 @@ public class StoryManager : MonoBehaviour
                 case StoryStepType.ShowCG:
 
                     storyUI.ShowCG(
-                        step.CGSprite,
+                        step.CGPrefab,
+                        step.CGAnimationStateName,
                         step.HideCharactersWhenShowingCG
                     );
 

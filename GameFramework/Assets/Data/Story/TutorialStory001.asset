@@ -13,14 +13,69 @@ MonoBehaviour:
   m_Name: TutorialStory001
   m_EditorClassIdentifier: Assembly-CSharp::StoryData
   steps:
-  - stepType: 0
-    backgroundSprite: {fileID: 0}
-    characterSlot: 0
-    characterPrefab: {fileID: 0}
-    characterAnimationStateName: 
+  - stepType: 5
+    backgroundSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    characterSlot: 1
+    characterPrefab: {fileID: -2253911629886400664, guid: 0bf0768f94f647540b63f4f9206e2115, type: 3}
+    characterAnimationStateName: Idle
     flipHorizontal: 0
     cgPrefab: {fileID: 0}
     cgAnimationStateName: 
     hideCharactersWhenShowingCG: 0
-    speakerName: 
-    dialogueText: 
+    speakerName: "\uD558\uC789"
+    dialogueText: "\uC789\uC774\uC774\uC774\u3163\uC789\uC774\uC774\uC789 \uC544\uC559"
+  - stepType: 5
+    backgroundSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    characterSlot: 2
+    characterPrefab: {fileID: -2253911629886400664, guid: 0bf0768f94f647540b63f4f9206e2115, type: 3}
+    characterAnimationStateName: Attack01
+    flipHorizontal: 1
+    cgPrefab: {fileID: 0}
+    cgAnimationStateName: 
+    hideCharactersWhenShowingCG: 0
+    speakerName: "\uD558\uC789"
+    dialogueText: "\uC5C9\uC5B4\uC5B4\uC5B4\uC5B4\uC5C9\uC5B4\uC5B4\uC5C9"
+  - stepType: 4
+    backgroundSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    characterSlot: 2
+    characterPrefab: {fileID: -2253911629886400664, guid: 0bf0768f94f647540b63f4f9206e2115, type: 3}
+    characterAnimationStateName: Idle
+    flipHorizontal: 1
+    cgPrefab: {fileID: 0}
+    cgAnimationStateName: 
+    hideCharactersWhenShowingCG: 0
+    speakerName: "\uD558\uC789"
+    dialogueText: "\uC5C9\uC5B4\uC5B4\uC5B4\uC5B4\uC5C9\uC5B4\uC5B4\uC5C9"
+  - stepType: 0
+    backgroundSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    characterSlot: 2
+    characterPrefab: {fileID: -2253911629886400664, guid: 0bf0768f94f647540b63f4f9206e2115, type: 3}
+    characterAnimationStateName: Idle
+    flipHorizontal: 1
+    cgPrefab: {fileID: 0}
+    cgAnimationStateName: 
+    hideCharactersWhenShowingCG: 0
+    speakerName: "\uD558\uC789"
+    dialogueText: "\uC5C9\uC5B4\uC5B4\uC5B4\uC5B4\uC5C9\uC5B4\uC5B4\uC5C9"
+  - stepType: 1
+    backgroundSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    characterSlot: 2
+    characterPrefab: {fileID: -2253911629886400664, guid: 0bf0768f94f647540b63f4f9206e2115, type: 3}
+    characterAnimationStateName: Idle
+    flipHorizontal: 0
+    cgPrefab: {fileID: 0}
+    cgAnimationStateName: 
+    hideCharactersWhenShowingCG: 0
+    speakerName: "\uD558\uC789"
+    dialogueText: "\uC6B0\uC6C5\n"
+  - stepType: 5
+    backgroundSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    characterSlot: 2
+    characterPrefab: {fileID: -2253911629886400664, guid: 0bf0768f94f647540b63f4f9206e2115, type: 3}
+    characterAnimationStateName: Idle
+    flipHorizontal: 1
+    cgPrefab: {fileID: 0}
+    cgAnimationStateName: 
+    hideCharactersWhenShowingCG: 0
+    speakerName: "\uD558\uC789"
+    dialogueText: "\uC73C\uC5B4\uC5C9\n"

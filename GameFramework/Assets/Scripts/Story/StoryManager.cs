@@ -6,6 +6,12 @@ public class StoryManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] private StoryUI storyUI;
 
+    [Header("스토리 데이터")]
+    [SerializeField] private StoryData storyData;
+
+    [Header("자동 재생")]
+    [SerializeField] private bool playOnSceneStart = true;
+
     private StoryData currentStory;
 
     private int currentStepIndex;
@@ -18,6 +24,17 @@ public class StoryManager : MonoBehaviour
     private Action onStoryFinished;
 
     public bool IsPlaying => isPlaying;
+
+    private void Start()
+    {
+        if (playOnSceneStart)
+        {
+            PlayAssignedStory();
+        }
+    }
+
+    
+
 
     private void Update()
     {
@@ -33,6 +50,18 @@ public class StoryManager : MonoBehaviour
         {
             AdvanceStory();
         }
+    }
+
+
+    public void PlayAssignedStory()
+    {
+        if (storyData == null)
+        {
+            Debug.LogWarning("StoryData가 연결되지 않았습니다.");
+            return;
+        }
+
+        PlayStory(storyData);
     }
 
     // 스토리 시작

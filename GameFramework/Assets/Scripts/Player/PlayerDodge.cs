@@ -16,22 +16,27 @@ public class PlayerDodge : MonoBehaviour
     [SerializeField] private float invincibleStartTime = 0f;
     [SerializeField] private float invincibleEndTime = 0.15f;
 
+    // 장비/상점 효과 등으로 닷지 자체를 막을 때 사용
+    private bool dodgeEnabled = true;
+
+    // 현재 닷지 충전이 남아있는지
+    private bool canDodge = true;
+
+    // 땅/벽에 새로 접촉했는지 확인용
+    private bool wasGrounded;
+    private bool wasTouchingWall;
+
     private float dodgeTimer;
     private Vector2 dodgeDirection;
 
     private float defaultGravityScale;
 
-    // 닷지 1회 충전 여부
-    private bool canDodge = true;
-
-    // 땅/벽에 "새로 접촉했는지" 확인용
-    private bool wasGrounded;
-    private bool wasTouchingWall;
-
     public bool IsDodging =>
         playerState.Is(PlayerStateType.Dodge);
 
     public bool IsInvincible { get; private set; }
+
+    public bool DodgeEnabled => dodgeEnabled;
 
     public bool CanDodgeCharge => canDodge;
 
@@ -49,7 +54,10 @@ public class PlayerDodge : MonoBehaviour
         if (wallDetector == null)
             wallDetector = GetComponent<WallDetector>();
 
-        defaultGravityScale = rb.gravityScale;
+        if (rb != null)
+        {
+            defaultGravityScale = rb.gravityScale;
+        }
 
         invincibleStartTime =
             Mathf.Max(0f, invincibleStartTime);
@@ -64,10 +72,16 @@ public class PlayerDodge : MonoBehaviour
     private void Start()
     {
         if (playerMovement != null)
-            wasGrounded = playerMovement.IsGrounded;
+        {
+            wasGrounded =
+                playerMovement.IsGrounded;
+        }
 
         if (wallDetector != null)
-            wasTouchingWall = wallDetector.HasWall;
+        {
+            wasTouchingWall =
+                wallDetector.HasWall;
+        }
     }
 
     private void Update()
@@ -86,7 +100,22 @@ public class PlayerDodge : MonoBehaviour
     }
 
     // =========================================================
-    // Dodge Reset
+    // 닷지 사용 가능 / 불가능
+    // =========================================================
+
+    public void SetDodgeEnabled(bool enabled)
+    {
+        dodgeEnabled = enabled;
+
+        // 닷지를 막는 순간 닷지 중이면 강제로 종료
+        if (!dodgeEnabled && IsDodging)
+        {
+            EndDodge();
+        }
+    }
+
+    // =========================================================
+    // 닷지 충전 초기화
     // =========================================================
 
     private void CheckDodgeReset()
@@ -99,13 +128,13 @@ public class PlayerDodge : MonoBehaviour
             wallDetector != null &&
             wallDetector.HasWall;
 
-        // 공중에 있다가 새로 땅에 착지
+        // 공중에 있다가 새로 땅에 착지했을 때
         if (isGrounded && !wasGrounded)
         {
             ResetDodge();
         }
 
-        // 벽에 새로 접촉
+        // 벽에 새로 접촉했을 때
         if (isTouchingWall && !wasTouchingWall)
         {
             ResetDodge();
@@ -132,8 +161,15 @@ public class PlayerDodge : MonoBehaviour
         if (!Input.GetMouseButtonDown(1))
             return;
 
-        // 닷지 충전이 없으면 사용 불가
+        // 장비 등의 효과로 닷지 자체가 비활성화된 상태
+        if (!dodgeEnabled)
+            return;
+
+        // 닷지 충전이 없는 상태
         if (!canDodge)
+            return;
+
+        if (playerState == null)
             return;
 
         if (!playerState.CanDodge())
@@ -148,12 +184,13 @@ public class PlayerDodge : MonoBehaviour
 
     private void StartDodge()
     {
-        dodgeDirection = CalculateDodgeDirection();
+        dodgeDirection =
+            CalculateDodgeDirection();
 
         if (dodgeDirection == Vector2.zero)
             return;
 
-        // 닷지 사용
+        // 닷지 충전 1회 소비
         canDodge = false;
 
         playerState.SetState(
@@ -162,13 +199,18 @@ public class PlayerDodge : MonoBehaviour
 
         dodgeTimer = 0f;
 
-        rb.gravityScale = 0f;
+        if (rb != null)
+        {
+            rb.gravityScale = 0f;
 
-        float dodgeSpeed =
-            dodgeDistance / dodgeDuration;
+            float dodgeSpeed =
+                dodgeDistance /
+                Mathf.Max(dodgeDuration, 0.01f);
 
-        rb.linearVelocity =
-            dodgeDirection * dodgeSpeed;
+            rb.linearVelocity =
+                dodgeDirection *
+                dodgeSpeed;
+        }
 
         IsInvincible = false;
     }
@@ -179,7 +221,8 @@ public class PlayerDodge : MonoBehaviour
 
     private Vector2 CalculateDodgeDirection()
     {
-        Camera mainCamera = Camera.main;
+        Camera mainCamera =
+            Camera.main;
 
         if (mainCamera == null)
         {
@@ -199,23 +242,29 @@ public class PlayerDodge : MonoBehaviour
             mouseWorldPosition -
             transform.position;
 
-        if (direction.sqrMagnitude < 0.0001f)
+        if (direction.sqrMagnitude <
+            0.0001f)
+        {
             return Vector2.zero;
+        }
 
         direction.Normalize();
 
-        // 지상에서는 아래 방향 닷지 금지
-        if (playerMovement.IsGrounded)
+        // 지상에서는 아래 방향으로 닷지 불가
+        if (playerMovement != null &&
+            playerMovement.IsGrounded)
         {
             if (direction.y < 0f)
             {
                 direction.y = 0f;
 
-                if (direction.sqrMagnitude >
+                if (direction.sqrMagnitude <
                     0.0001f)
                 {
-                    direction.Normalize();
+                    return Vector2.zero;
                 }
+
+                direction.Normalize();
             }
         }
 
@@ -246,8 +295,10 @@ public class PlayerDodge : MonoBehaviour
     private void UpdateInvincibility()
     {
         IsInvincible =
-            dodgeTimer >= invincibleStartTime &&
-            dodgeTimer <= invincibleEndTime;
+            dodgeTimer >=
+            invincibleStartTime &&
+            dodgeTimer <=
+            invincibleEndTime;
     }
 
     // =========================================================
@@ -258,15 +309,21 @@ public class PlayerDodge : MonoBehaviour
     {
         IsInvincible = false;
 
-        rb.linearVelocity =
-            Vector2.zero;
+        if (rb != null)
+        {
+            rb.linearVelocity =
+                Vector2.zero;
 
-        rb.gravityScale =
-            defaultGravityScale;
+            rb.gravityScale =
+                defaultGravityScale;
+        }
 
-        playerState.SetState(
-            PlayerStateType.Normal
-        );
+        if (playerState != null)
+        {
+            playerState.SetState(
+                PlayerStateType.Normal
+            );
+        }
 
         dodgeTimer = 0f;
     }

@@ -11938,6 +11938,7 @@ GameObject:
   - component: {fileID: 963595136}
   - component: {fileID: 963595135}
   - component: {fileID: 963595134}
+  - component: {fileID: 963595141}
   - component: {fileID: 963595133}
   - component: {fileID: 963595132}
   - component: {fileID: 963595131}
@@ -12220,6 +12221,20 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+--- !u!114 &963595141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963595128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c2a57fea53c0304cb35c53dace878e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerGuard
+  guardKey: 304
+  guardAngle: 90
 --- !u!1 &1235847141
 GameObject:
   m_ObjectHideFlags: 0

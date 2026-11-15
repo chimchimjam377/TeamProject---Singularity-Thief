@@ -12058,6 +12058,7 @@ MonoBehaviour:
   rb: {fileID: 963595136}
   playerState: {fileID: 963595132}
   playerMovement: {fileID: 963595135}
+  wallDetector: {fileID: 963595134}
   dodgeDistance: 6
   dodgeDuration: 0.2
   invincibleStartTime: 0

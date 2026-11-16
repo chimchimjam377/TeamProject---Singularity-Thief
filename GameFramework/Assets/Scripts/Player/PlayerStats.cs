@@ -16,9 +16,11 @@ public class PlayerStats : MonoBehaviour, IDamageable
     [Min(0f)]
     [SerializeField] private float staminaRecoveryDelay = 1.5f;
 
+
     private int currentHealth;
     private float currentStamina;
     private float staminaRecoveryTimer;
+
 
     private PlayerDodge playerDodge;
     private PlayerState playerState;
@@ -28,7 +30,11 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     private bool isDead;
 
-    // 💡 [수정됨] 인스펙터 창에서 실시간으로 확인 가능하도록 변경된 변수
+
+    // =========================================
+    // 사망 데이터
+    // =========================================
+
     [Header("사망 데이터 (인스펙터 확인용)")]
     public int currentDeathCount = 0;
 
@@ -38,6 +44,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
     // =========================================
 
     private int equipHealthBonus = 0;
+
     private float equipStaminaBonus = 0f;
 
     private float equipCritChance = 0f;
@@ -61,11 +68,13 @@ public class PlayerStats : MonoBehaviour, IDamageable
     public bool IsDead =>
         isDead;
 
+
     public float MaxStamina =>
         maxStamina + equipStaminaBonus;
 
     public float CurrentStamina =>
         currentStamina;
+
 
     public float StaminaRatio =>
         MaxStamina > 0f
@@ -75,6 +84,10 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     public event Action<float, float> OnStaminaChanged;
 
+
+    // =========================================
+    // Detection
+    // =========================================
 
     [Header("Detection")]
     public float SoundPower = 10f;
@@ -91,6 +104,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
     [SerializeField]
     private float criticalChanceBonus = 0f;
 
+
     [Tooltip("크리티컬 발생 시 추가 피해량. 0.5 = 50%")]
     [Min(0f)]
     [SerializeField]
@@ -100,6 +114,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
     public float CriticalChanceBonus =>
         criticalChanceBonus +
         equipCritChance;
+
 
     public float CriticalDamageBonus =>
         criticalDamageBonus +
@@ -117,10 +132,12 @@ public class PlayerStats : MonoBehaviour, IDamageable
     [SerializeField]
     private float slashDamageBonus = 0f;
 
+
     [Tooltip("찌르기 피해 증가. 0.2 = 20%")]
     [Min(0f)]
     [SerializeField]
     private float pierceDamageBonus = 0f;
+
 
     [Tooltip("타격 피해 증가. 0.2 = 20%")]
     [Min(0f)]
@@ -132,9 +149,11 @@ public class PlayerStats : MonoBehaviour, IDamageable
         slashDamageBonus +
         equipSlash;
 
+
     public float PierceDamageBonus =>
         pierceDamageBonus +
         equipPierce;
+
 
     public float BluntDamageBonus =>
         bluntDamageBonus +
@@ -142,38 +161,60 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
 
     // =========================================
-    // Awake & Start
+    // Awake
     // =========================================
 
     private void Awake()
     {
         currentHealth = MaxHealth;
+
         currentStamina = MaxStamina;
+
 
         playerDodge =
             GetComponent<PlayerDodge>();
 
+
         playerState =
             GetComponent<PlayerState>();
 
-        // 가드 자동 연결
+
         playerGuard =
             GetComponent<PlayerGuard>();
     }
 
-    // 💡 [2단계] 게임 시작 시 하드디스크에서 예전에 죽었던 기록 불러오기
+
+    // =========================================
+    // Start
+    // =========================================
+
     private void Start()
     {
-        // "DeathCount"라는 이름으로 저장된 숫자가 있으면 가져오고, 한 번도 안 죽었으면 0으로 가져옵니다.
-        currentDeathCount = PlayerPrefs.GetInt("DeathCount", 0);
-        Debug.Log($"현재 누적 사망 횟수: {currentDeathCount}");
+        // 저장되어 있는 누적 사망 횟수 불러오기
+        currentDeathCount =
+            PlayerPrefs.GetInt(
+                "DeathCount",
+                0
+            );
+
+
+        Debug.Log(
+            $"현재 누적 사망 횟수: {currentDeathCount}"
+        );
     }
+
+
+    // =========================================
+    // Update
+    // =========================================
 
     private void Update()
     {
         UpdateStaminaRecovery();
 
-        // 💡 [테스트용] 키보드 F12 키를 누르면 사망 횟수를 0으로 강제 초기화합니다.
+
+        // 테스트용
+        // F12를 누르면 사망 횟수를 0으로 초기화
         if (Input.GetKeyDown(KeyCode.F12))
         {
             ResetDeathCount();
@@ -194,28 +235,45 @@ public class PlayerStats : MonoBehaviour, IDamageable
         float piBonus,
         float blBonus)
     {
-        equipHealthBonus = hBonus;
-        equipStaminaBonus = sBonus;
+        equipHealthBonus =
+            hBonus;
 
-        equipCritChance = ccBonus;
-        equipCritDamage = cdBonus;
-
-        equipSlash = slBonus;
-        equipPierce = piBonus;
-        equipBlunt = blBonus;
+        equipStaminaBonus =
+            sBonus;
 
 
+        equipCritChance =
+            ccBonus;
+
+        equipCritDamage =
+            cdBonus;
+
+
+        equipSlash =
+            slBonus;
+
+        equipPierce =
+            piBonus;
+
+        equipBlunt =
+            blBonus;
+
+
+        // 최대 스태미나가 낮아진 경우 보정
         if (currentStamina > MaxStamina)
         {
             currentStamina =
                 MaxStamina;
         }
 
+
+        // 최대 체력이 낮아진 경우 보정
         if (currentHealth > MaxHealth)
         {
             currentHealth =
                 MaxHealth;
         }
+
 
         NotifyStaminaChanged();
     }
@@ -230,6 +288,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
         if (isDead)
             return;
 
+
         if (currentStamina >= MaxStamina)
             return;
 
@@ -239,18 +298,23 @@ public class PlayerStats : MonoBehaviour, IDamageable
             staminaRecoveryTimer -=
                 Time.deltaTime;
 
+
             staminaRecoveryTimer =
                 Mathf.Max(
                     0f,
                     staminaRecoveryTimer
                 );
 
+
             return;
         }
 
 
+        // 공격 중에는 스태미나 회복 안 함
         if (playerState != null &&
-            playerState.Is(PlayerStateType.Attack))
+            playerState.Is(
+                PlayerStateType.Attack
+            ))
         {
             return;
         }
@@ -285,57 +349,85 @@ public class PlayerStats : MonoBehaviour, IDamageable
     // Stamina
     // =========================================
 
-    public bool CanUseStamina(float amount)
+    public bool CanUseStamina(
+        float amount)
     {
-        if (isDead || amount < 0f)
+        if (isDead ||
+            amount < 0f)
+        {
             return false;
+        }
+
 
         return currentStamina >= amount;
     }
 
 
-    public bool TryConsumeStamina(float amount)
+    public bool TryConsumeStamina(
+        float amount)
     {
         if (!CanUseStamina(amount))
+        {
             return false;
+        }
+
 
         if (amount <= 0f)
+        {
             return true;
+        }
 
 
-        currentStamina -= amount;
+        currentStamina -=
+            amount;
+
 
         staminaRecoveryTimer =
             staminaRecoveryDelay;
 
+
         NotifyStaminaChanged();
+
 
         return true;
     }
 
 
-    public void RestoreStamina(float amount)
+    public void RestoreStamina(
+        float amount)
     {
-        if (isDead || amount <= 0f)
+        if (isDead ||
+            amount <= 0f)
+        {
             return;
+        }
 
 
         currentStamina =
             Mathf.Min(
-                currentStamina + amount,
+                currentStamina +
+                amount,
                 MaxStamina
             );
+
 
         NotifyStaminaChanged();
     }
 
 
-    public void IncreaseMaxStamina(float amount)
+    public void IncreaseMaxStamina(
+        float amount)
     {
-        if (isDead || amount <= 0f)
+        if (isDead ||
+            amount <= 0f)
+        {
             return;
+        }
 
-        maxStamina += amount;
+
+        maxStamina +=
+            amount;
+
 
         NotifyStaminaChanged();
     }
@@ -360,8 +452,11 @@ public class PlayerStats : MonoBehaviour, IDamageable
     {
         isCritical = false;
 
+
         if (attack == null)
+        {
             return 0;
+        }
 
 
         float typeBonus =
@@ -410,21 +505,29 @@ public class PlayerStats : MonoBehaviour, IDamageable
         switch (type)
         {
             case AttackType.Slash:
+
                 return SlashDamageBonus;
 
+
             case AttackType.Pierce:
+
                 return PierceDamageBonus;
 
+
             case AttackType.Blunt:
+
                 return BluntDamageBonus;
 
+
             default:
+
                 return 0f;
         }
     }
 
 
-    public void AddCriticalChance(float amount)
+    public void AddCriticalChance(
+        float amount)
     {
         criticalChanceBonus =
             Mathf.Clamp01(
@@ -498,12 +601,15 @@ public class PlayerStats : MonoBehaviour, IDamageable
         int damage,
         GameObject attacker)
     {
-        if (isDead || damage <= 0)
+        if (isDead ||
+            damage <= 0)
+        {
             return;
+        }
 
 
         // -------------------------
-        // 1. 닷지 무적
+        // 닷지 무적
         // -------------------------
 
         if (playerDodge != null &&
@@ -514,7 +620,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
 
         // -------------------------
-        // 2. 방향 가드
+        // 방향 가드
         // -------------------------
 
         if (playerGuard != null &&
@@ -538,10 +644,12 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
 
         // -------------------------
-        // 3. 실제 데미지
+        // 실제 데미지
         // -------------------------
 
-        currentHealth -= damage;
+        currentHealth -=
+            damage;
+
 
         currentHealth =
             Mathf.Max(
@@ -570,17 +678,32 @@ public class PlayerStats : MonoBehaviour, IDamageable
     private void Die()
     {
         if (isDead)
+        {
             return;
+        }
 
 
         isDead = true;
 
-        // 💡 [3단계] 체력이 0이 되어 죽었을 때, 기록을 1 늘리고 하드디스크에 저장
-        currentDeathCount++;
-        PlayerPrefs.SetInt("DeathCount", currentDeathCount);
-        PlayerPrefs.Save(); // 데이터가 날아가지 않게 확실히 기록
 
-        Debug.Log($"플레이어 사망! 누적 사망 횟수: {currentDeathCount}");
+        // 사망 횟수 1 증가
+        currentDeathCount++;
+
+
+        // 저장
+        PlayerPrefs.SetInt(
+            "DeathCount",
+            currentDeathCount
+        );
+
+
+        PlayerPrefs.Save();
+
+
+        Debug.Log(
+            $"플레이어 사망! 누적 사망 횟수: " +
+            $"{currentDeathCount}"
+        );
 
 
         if (playerState != null)
@@ -600,6 +723,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
             rb.linearVelocity =
                 Vector2.zero;
 
+
             rb.angularVelocity =
                 0f;
         }
@@ -610,16 +734,47 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
 
     // =========================================
+    // Death Count Reset
+    // =========================================
+
+    public void ResetDeathCount()
+    {
+        currentDeathCount =
+            0;
+
+
+        PlayerPrefs.SetInt(
+            "DeathCount",
+            0
+        );
+
+
+        PlayerPrefs.Save();
+
+
+        Debug.Log(
+            "사망 횟수가 0으로 초기화되었습니다."
+        );
+    }
+
+
+    // =========================================
     // Heal
     // =========================================
 
-    public void Heal(int amount)
+    public void Heal(
+        int amount)
     {
-        if (isDead || amount <= 0)
+        if (isDead ||
+            amount <= 0)
+        {
             return;
+        }
 
 
-        currentHealth += amount;
+        currentHealth +=
+            amount;
+
 
         currentHealth =
             Mathf.Min(

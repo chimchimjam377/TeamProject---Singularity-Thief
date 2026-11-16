@@ -44,5 +44,17 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/MainPlayScenes/GameOver.unity
     guid: 2c748762ab28c4615b9bddeba0b7a092
+  - enabled: 1
+    path: Assets/Scenes/tttest/Stage1.unity
+    guid: a57b84aaf3526054c9de1827a1258bbd
+  - enabled: 1
+    path: Assets/Scenes/tttest/Stage2_A.unity
+    guid: 4423890777a56914486ea243933eb19c
+  - enabled: 1
+    path: Assets/Scenes/tttest/Stage2_B.unity
+    guid: e383e1e8ebbc20d47b8e1ea37b17fcc3
+  - enabled: 1
+    path: Assets/Scenes/tttest/Stage2_C.unity
+    guid: 58c77154b7f56d146860cd568fadab66
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

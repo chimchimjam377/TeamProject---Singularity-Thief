@@ -1,11 +1,12 @@
 
-using UnityEngine;
-using UnityEngine.UI;
+using System.Collections;
 using TMPro;
+using UnityEngine;
+using UnityEngine.Rendering;
 
 public class StoryUI : MonoBehaviour
 {
-    [Header("화면")]
+    [Header("스토리 전체 UI")]
     [SerializeField] private GameObject storyCanvasRoot;
     [SerializeField] private GameObject visualStageRoot;
 
@@ -26,17 +27,74 @@ public class StoryUI : MonoBehaviour
     [SerializeField] private TMP_Text dialogueText;
     [SerializeField] private GameObject nextIndicator;
 
-    // 캐릭터 런타임 데이터
-    private readonly GameObject[] characterPrefabs = new GameObject[3];
-    private readonly GameObject[] characterInstances = new GameObject[3];
-    private readonly Animator[] characterAnimators = new Animator[3];
+    // =====================================
+    // 타이핑 설정
+    // =====================================
 
-    // CG 런타임 데이터
+    [Header("타이핑 설정")]
+    [SerializeField] private float charactersPerSecond = 35f;
+
+    [SerializeField] private int charactersPerSound = 2;
+
+    [SerializeField] private AudioSource typingAudioSource;
+
+    [SerializeField] private AudioClip defaultTypingSound;
+
+    [Range(0f, 1f)]
+    [SerializeField] private float typingSoundVolume = 0.7f;
+
+    private Coroutine typingCoroutine;
+
+    public bool IsTyping => typingCoroutine != null;
+
+    // =====================================
+    // 캐릭터 강조 설정
+    // =====================================
+
+    [Header("캐릭터 강조 설정")]
+    [SerializeField]
+    private Color nonSpeakerTint =
+        new Color(0.4f, 0.4f, 0.4f, 1f);
+
+    [SerializeField] private int normalSortingOrder = 10;
+
+    [SerializeField] private int speakerSortingOrder = 100;
+
+    // 캐릭터 런타임 정보
+    private class CharacterRuntime
+    {
+        public GameObject prefab;
+        public GameObject instance;
+
+        public Animator animator;
+
+        public SortingGroup sortingGroup;
+
+        public SpriteRenderer[] renderers;
+
+        public Color[] originalColors;
+    }
+
+    private readonly CharacterRuntime[] characters =
+    {
+        new CharacterRuntime(),
+        new CharacterRuntime(),
+        new CharacterRuntime()
+    };
+
+    private readonly bool[] characterVisibilityBeforeCG =
+        new bool[3];
+
+    private bool currentHasSpeaker;
+    private StoryCharacterSlot currentSpeakerSlot;
+
+    // =====================================
+    // CG 정보
+    // =====================================
+
     private GameObject currentCGPrefab;
     private GameObject currentCGInstance;
     private Animator currentCGAnimator;
-
-    private readonly bool[] characterVisibilityBeforeCG = new bool[3];
 
     private bool hideCharactersForCG;
     private bool isCGShowing;
@@ -46,12 +104,14 @@ public class StoryUI : MonoBehaviour
         Close();
     }
 
-    // =========================
+    // =====================================
     // 화면 관리
-    // =========================
+    // =====================================
 
     public void Open()
     {
+        StopTyping();
+
         storyCanvasRoot.SetActive(true);
         visualStageRoot.SetActive(true);
 
@@ -62,13 +122,18 @@ public class StoryUI : MonoBehaviour
 
     public void Close()
     {
-        storyCanvasRoot.SetActive(false);
-        visualStageRoot.SetActive(false);
+        StopTyping();
 
-        dialogueRoot.SetActive(false);
+        if (storyCanvasRoot != null)
+            storyCanvasRoot.SetActive(false);
 
-        if (nextIndicator != null)
-            nextIndicator.SetActive(false);
+        if (visualStageRoot != null)
+            visualStageRoot.SetActive(false);
+
+        if (dialogueRoot != null)
+            dialogueRoot.SetActive(false);
+
+        SetNextIndicator(false);
     }
 
     private void ClearVisuals()
@@ -79,22 +144,23 @@ public class StoryUI : MonoBehaviour
             backgroundRenderer.enabled = false;
         }
 
-        for (int i = 0; i < characterInstances.Length; i++)
+        for (int i = 0; i < characters.Length; i++)
         {
-            if (characterInstances[i] != null)
-                characterInstances[i].SetActive(false);
+            if (characters[i].instance != null)
+                characters[i].instance.SetActive(false);
         }
 
         if (currentCGInstance != null)
             currentCGInstance.SetActive(false);
 
+        currentHasSpeaker = false;
         isCGShowing = false;
         hideCharactersForCG = false;
     }
 
-    // =========================
+    // =====================================
     // 배경
-    // =========================
+    // =====================================
 
     public void SetBackground(Sprite sprite)
     {
@@ -105,9 +171,9 @@ public class StoryUI : MonoBehaviour
         backgroundRenderer.enabled = sprite != null;
     }
 
-    // =========================
-    // 캐릭터
-    // =========================
+    // =====================================
+    // 캐릭터 표시
+    // =====================================
 
     public void ShowCharacter(
         StoryCharacterSlot slot,
@@ -128,48 +194,73 @@ public class StoryUI : MonoBehaviour
         if (parent == null)
             return;
 
-        // 다른 캐릭터라면 프리팹 교체
-        if (characterPrefabs[index] != prefab ||
-            characterInstances[index] == null)
+        CharacterRuntime runtime = characters[index];
+
+        // 프리팹이 변경되었거나 인스턴스가 없는 경우
+        if (runtime.prefab != prefab || runtime.instance == null)
         {
-            if (characterInstances[index] != null)
-            {
-                characterInstances[index].SetActive(false);
-                Destroy(characterInstances[index]);
-            }
+            if (runtime.instance != null)
+                Destroy(runtime.instance);
 
-            characterPrefabs[index] = prefab;
+            runtime.prefab = prefab;
 
-            characterInstances[index] =
+            runtime.instance =
                 Instantiate(prefab, parent, false);
 
-            characterAnimators[index] =
-                characterInstances[index].GetComponentInChildren<Animator>(true);
+            runtime.animator =
+                runtime.instance.GetComponentInChildren<Animator>(true);
 
-            characterInstances[index].transform.localPosition =
+            // 캐릭터 전체를 하나의 렌더 그룹으로 관리
+            runtime.sortingGroup =
+                runtime.instance.GetComponent<SortingGroup>();
+
+            if (runtime.sortingGroup == null)
+            {
+                runtime.sortingGroup =
+                    runtime.instance.AddComponent<SortingGroup>();
+            }
+
+            // 캐릭터 내부 SpriteRenderer 수집
+            runtime.renderers =
+                runtime.instance.GetComponentsInChildren<SpriteRenderer>(true);
+
+            runtime.originalColors =
+                new Color[runtime.renderers.Length];
+
+            for (int i = 0; i < runtime.renderers.Length; i++)
+            {
+                runtime.originalColors[i] =
+                    runtime.renderers[i].color;
+            }
+
+            runtime.instance.transform.localPosition =
                 Vector3.zero;
 
-            characterInstances[index].transform.localRotation =
+            runtime.instance.transform.localRotation =
                 Quaternion.identity;
         }
 
-        GameObject character = characterInstances[index];
-
-        character.SetActive(true);
+        runtime.instance.SetActive(true);
 
         // 좌우 반전
-        Vector3 scale = character.transform.localScale;
+        Vector3 scale = runtime.instance.transform.localScale;
 
         scale.x = Mathf.Abs(scale.x) *
             (flipHorizontal ? -1f : 1f);
 
-        character.transform.localScale = scale;
+        runtime.instance.transform.localScale = scale;
 
         // 애니메이션 재생
         PlayAnimation(
-            characterAnimators[index],
+            runtime.animator,
             animationStateName,
             "캐릭터 " + slot
+        );
+
+        // 현재 대사 강조 상태 적용
+        ApplyCharacterFocus(
+            currentHasSpeaker,
+            currentSpeakerSlot
         );
     }
 
@@ -177,8 +268,8 @@ public class StoryUI : MonoBehaviour
     {
         int index = (int)slot;
 
-        if (characterInstances[index] != null)
-            characterInstances[index].SetActive(false);
+        if (characters[index].instance != null)
+            characters[index].instance.SetActive(false);
     }
 
     private Transform GetCharacterRoot(StoryCharacterSlot slot)
@@ -198,9 +289,53 @@ public class StoryUI : MonoBehaviour
         return null;
     }
 
-    // =========================
-    // CG
-    // =========================
+    // =====================================
+    // 말하는 캐릭터 강조
+    // =====================================
+
+    private void ApplyCharacterFocus(
+        bool hasSpeaker,
+        StoryCharacterSlot speakerSlot)
+    {
+        currentHasSpeaker = hasSpeaker;
+        currentSpeakerSlot = speakerSlot;
+
+        for (int i = 0; i < characters.Length; i++)
+        {
+            CharacterRuntime runtime = characters[i];
+
+            if (runtime.instance == null)
+                continue;
+
+            bool isSpeaker =
+                hasSpeaker && i == (int)speakerSlot;
+
+            // 말하지 않는 캐릭터는 어둡게
+            Color tint = isSpeaker || !hasSpeaker
+                ? Color.white
+                : nonSpeakerTint;
+
+            // 원래 색상을 기준으로 밝기 적용
+            for (int j = 0; j < runtime.renderers.Length; j++)
+            {
+                runtime.renderers[j].color =
+                    runtime.originalColors[j] * tint;
+            }
+
+            // 말하는 캐릭터를 가장 앞쪽으로
+            if (runtime.sortingGroup != null)
+            {
+                runtime.sortingGroup.sortingOrder =
+                    isSpeaker
+                    ? speakerSortingOrder
+                    : normalSortingOrder + i;
+            }
+        }
+    }
+
+    // =====================================
+    // CG 표시
+    // =====================================
 
     public void ShowCG(
         GameObject prefab,
@@ -216,15 +351,10 @@ public class StoryUI : MonoBehaviour
         if (cgRoot == null)
             return;
 
-        // 다른 CG라면 교체
-        if (currentCGPrefab != prefab ||
-            currentCGInstance == null)
+        if (currentCGPrefab != prefab || currentCGInstance == null)
         {
             if (currentCGInstance != null)
-            {
-                currentCGInstance.SetActive(false);
                 Destroy(currentCGInstance);
-            }
 
             currentCGPrefab = prefab;
 
@@ -234,8 +364,11 @@ public class StoryUI : MonoBehaviour
             currentCGAnimator =
                 currentCGInstance.GetComponentInChildren<Animator>(true);
 
-            currentCGInstance.transform.localPosition = Vector3.zero;
-            currentCGInstance.transform.localRotation = Quaternion.identity;
+            currentCGInstance.transform.localPosition =
+                Vector3.zero;
+
+            currentCGInstance.transform.localRotation =
+                Quaternion.identity;
         }
 
         currentCGInstance.SetActive(true);
@@ -244,10 +377,9 @@ public class StoryUI : MonoBehaviour
         {
             hideCharactersForCG = hideCharacters;
 
-            // CG 출력 전 캐릭터 상태 저장
-            for (int i = 0; i < characterInstances.Length; i++)
+            for (int i = 0; i < characters.Length; i++)
             {
-                GameObject character = characterInstances[i];
+                GameObject character = characters[i].instance;
 
                 characterVisibilityBeforeCG[i] =
                     character != null && character.activeSelf;
@@ -273,11 +405,11 @@ public class StoryUI : MonoBehaviour
 
         if (hideCharactersForCG)
         {
-            for (int i = 0; i < characterInstances.Length; i++)
+            for (int i = 0; i < characters.Length; i++)
             {
-                if (characterInstances[i] != null)
+                if (characters[i].instance != null)
                 {
-                    characterInstances[i].SetActive(
+                    characters[i].instance.SetActive(
                         characterVisibilityBeforeCG[i]
                     );
                 }
@@ -288,9 +420,9 @@ public class StoryUI : MonoBehaviour
         isCGShowing = false;
     }
 
-    // =========================
+    // =====================================
     // 애니메이션 재생
-    // =========================
+    // =====================================
 
     private void PlayAnimation(
         Animator animator,
@@ -310,20 +442,14 @@ public class StoryUI : MonoBehaviour
             return;
 
         if (animator.runtimeAnimatorController == null)
-        {
-            Debug.LogWarning(
-                targetName + "에 Animator Controller가 없습니다."
-            );
-
             return;
-        }
 
-        // Inspector에서 Happy만 입력해도 작동하도록 처리
         string fullStateName = stateName.Contains(".")
             ? stateName
             : "Base Layer." + stateName;
 
-        int stateHash = Animator.StringToHash(fullStateName);
+        int stateHash =
+            Animator.StringToHash(fullStateName);
 
         if (!animator.HasState(0, stateHash))
         {
@@ -338,20 +464,159 @@ public class StoryUI : MonoBehaviour
         animator.Play(stateHash, 0, 0f);
     }
 
-    // =========================
-    // 대사
-    // =========================
+    // =====================================
+    // 대사 출력
+    // =====================================
 
     public void ShowDialogue(
         string speakerName,
-        string dialogue)
+        string dialogue,
+        AudioClip typingSound,
+        bool hasSpeakerCharacter,
+        StoryCharacterSlot speakerSlot)
     {
+        StopTyping();
+
+        // 말하는 캐릭터 강조
+        ApplyCharacterFocus(
+            hasSpeakerCharacter,
+            speakerSlot
+        );
+
         dialogueRoot.SetActive(true);
 
         speakerNameText.text = speakerName;
         dialogueText.text = dialogue;
 
+        dialogueText.ForceMeshUpdate();
+
+        // 처음에는 모든 글자를 숨김
+        dialogueText.maxVisibleCharacters = 0;
+
+        SetNextIndicator(false);
+
+        AudioClip selectedSound =
+            typingSound != null
+            ? typingSound
+            : defaultTypingSound;
+
+        int totalCharacters =
+            dialogueText.textInfo.characterCount;
+
+        if (totalCharacters == 0)
+        {
+            SetNextIndicator(true);
+            return;
+        }
+
+        typingCoroutine = StartCoroutine(
+            TypewriterRoutine(
+                selectedSound,
+                totalCharacters
+            )
+        );
+    }
+
+    // =====================================
+    // 타이핑 효과
+    // =====================================
+
+    private IEnumerator TypewriterRoutine(
+        AudioClip typingSound,
+        int totalCharacters)
+    {
+        float elapsedTime = 0f;
+
+        int displayedCharacters = 0;
+        int soundCharacterCount = 0;
+
+        float speed = Mathf.Max(1f, charactersPerSecond);
+
+        int soundInterval = Mathf.Max(1, charactersPerSound);
+
+        while (displayedCharacters < totalCharacters)
+        {
+            elapsedTime += Time.unscaledDeltaTime;
+
+            int targetCharacters = Mathf.Min(
+                totalCharacters,
+                Mathf.FloorToInt(elapsedTime * speed)
+            );
+
+            while (displayedCharacters < targetCharacters)
+            {
+                displayedCharacters++;
+
+                dialogueText.maxVisibleCharacters =
+                    displayedCharacters;
+
+                char currentCharacter =
+                    dialogueText.textInfo.characterInfo[
+                        displayedCharacters - 1
+                    ].character;
+
+                // 공백에는 효과음을 재생하지 않음
+                if (!char.IsWhiteSpace(currentCharacter))
+                {
+                    soundCharacterCount++;
+
+                    if (soundCharacterCount >= soundInterval)
+                    {
+                        PlayTypingSound(typingSound);
+                        soundCharacterCount = 0;
+                    }
+                }
+            }
+
+            if (displayedCharacters < totalCharacters)
+                yield return null;
+        }
+
+        typingCoroutine = null;
+
+        // 타이핑이 끝나면 다음 표시 활성화
+        SetNextIndicator(true);
+    }
+
+    private void PlayTypingSound(AudioClip clip)
+    {
+        if (clip == null || typingAudioSource == null)
+            return;
+
+        typingAudioSource.PlayOneShot(
+            clip,
+            typingSoundVolume
+        );
+    }
+
+    // 타이핑을 즉시 완료
+    public void CompleteTyping()
+    {
+        if (!IsTyping)
+            return;
+
+        StopTyping();
+
+        dialogueText.ForceMeshUpdate();
+
+        dialogueText.maxVisibleCharacters =
+            dialogueText.textInfo.characterCount;
+
+        SetNextIndicator(true);
+    }
+
+    private void StopTyping()
+    {
+        if (typingCoroutine != null)
+        {
+            StopCoroutine(typingCoroutine);
+            typingCoroutine = null;
+        }
+    }
+
+    private void SetNextIndicator(bool visible)
+    {
         if (nextIndicator != null)
-            nextIndicator.SetActive(true);
+            nextIndicator.SetActive(visible);
     }
 }

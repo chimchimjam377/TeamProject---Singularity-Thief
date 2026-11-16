@@ -103,6 +103,14 @@ public class StoryManager : MonoBehaviour
         if (!isPlaying || !waitingForInput)
             return;
 
+        // 아직 타이핑 중이라면 글자를 전부 출력
+        if (storyUI.IsTyping)
+        {
+            storyUI.CompleteTyping();
+            return;
+        }
+
+        // 타이핑이 끝난 상태라면 다음 명령 실행
         waitingForInput = false;
 
         ExecuteNextStep();
@@ -167,10 +175,12 @@ public class StoryManager : MonoBehaviour
 
                     storyUI.ShowDialogue(
                         step.SpeakerName,
-                        step.DialogueText
+                        step.DialogueText,
+                        step.TypingSound,
+                        step.HasSpeakerCharacter,
+                        step.SpeakerSlot
                     );
 
-                    // 대사에서 실행 중단
                     waitingForInput = true;
 
                     return;

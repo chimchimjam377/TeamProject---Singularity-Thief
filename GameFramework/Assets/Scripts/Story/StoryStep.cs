@@ -31,26 +31,29 @@ public class StoryStep
 
     [Header("캐릭터")]
     [SerializeField] private StoryCharacterSlot characterSlot;
-
     [SerializeField] private GameObject characterPrefab;
-
     [SerializeField] private string characterAnimationStateName;
-
     [SerializeField] private bool flipHorizontal;
 
     [Header("CG")]
     [SerializeField] private GameObject cgPrefab;
-
     [SerializeField] private string cgAnimationStateName;
-
-    [SerializeField]
-    private bool hideCharactersWhenShowingCG = true;
+    [SerializeField] private bool hideCharactersWhenShowingCG = true;
 
     [Header("대사")]
     [SerializeField] private string speakerName;
 
     [TextArea(3, 6)]
     [SerializeField] private string dialogueText;
+
+    [Header("대사 캐릭터 강조")]
+    [SerializeField] private bool hasSpeakerCharacter = true;
+    [SerializeField]
+    private StoryCharacterSlot speakerSlot =
+        StoryCharacterSlot.Center;
+
+    [Header("타이핑 효과음")]
+    [SerializeField] private AudioClip typingSound;
 
     public StoryStepType StepType => stepType;
 
@@ -71,4 +74,9 @@ public class StoryStep
 
     public string SpeakerName => speakerName;
     public string DialogueText => dialogueText;
+
+    public bool HasSpeakerCharacter => hasSpeakerCharacter;
+    public StoryCharacterSlot SpeakerSlot => speakerSlot;
+
+    public AudioClip TypingSound => typingSound;
 }

@@ -28,6 +28,10 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     private bool isDead;
 
+    // 💡 [수정됨] 인스펙터 창에서 실시간으로 확인 가능하도록 변경된 변수
+    [Header("사망 데이터 (인스펙터 확인용)")]
+    public int currentDeathCount = 0;
+
 
     // =========================================
     // 장비 보너스 스탯
@@ -138,7 +142,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
 
     // =========================================
-    // Awake
+    // Awake & Start
     // =========================================
 
     private void Awake()
@@ -157,10 +161,23 @@ public class PlayerStats : MonoBehaviour, IDamageable
             GetComponent<PlayerGuard>();
     }
 
+    // 💡 [2단계] 게임 시작 시 하드디스크에서 예전에 죽었던 기록 불러오기
+    private void Start()
+    {
+        // "DeathCount"라는 이름으로 저장된 숫자가 있으면 가져오고, 한 번도 안 죽었으면 0으로 가져옵니다.
+        currentDeathCount = PlayerPrefs.GetInt("DeathCount", 0);
+        Debug.Log($"현재 누적 사망 횟수: {currentDeathCount}");
+    }
 
     private void Update()
     {
         UpdateStaminaRecovery();
+
+        // 💡 [테스트용] 키보드 F12 키를 누르면 사망 횟수를 0으로 강제 초기화합니다.
+        if (Input.GetKeyDown(KeyCode.F12))
+        {
+            ResetDeathCount();
+        }
     }
 
 
@@ -557,6 +574,13 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
 
         isDead = true;
+
+        // 💡 [3단계] 체력이 0이 되어 죽었을 때, 기록을 1 늘리고 하드디스크에 저장
+        currentDeathCount++;
+        PlayerPrefs.SetInt("DeathCount", currentDeathCount);
+        PlayerPrefs.Save(); // 데이터가 날아가지 않게 확실히 기록
+
+        Debug.Log($"플레이어 사망! 누적 사망 횟수: {currentDeathCount}");
 
 
         if (playerState != null)

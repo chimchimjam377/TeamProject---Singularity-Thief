@@ -12074,6 +12074,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 963595129}
+  - component: {fileID: 963595142}
   - component: {fileID: 963595136}
   - component: {fileID: 963595135}
   - component: {fileID: 963595134}
@@ -12085,7 +12086,6 @@ GameObject:
   - component: {fileID: 963595139}
   - component: {fileID: 963595140}
   - component: {fileID: 963595141}
-  - component: {fileID: 963595142}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -12198,6 +12198,7 @@ MonoBehaviour:
   rb: {fileID: 963595136}
   playerState: {fileID: 963595132}
   playerMovement: {fileID: 963595135}
+  wallDetector: {fileID: 0}
   dodgeDistance: 6
   dodgeDuration: 0.2
   invincibleStartTime: 0
@@ -12355,6 +12356,7 @@ MonoBehaviour:
   maxStamina: 100
   staminaRecoveryPerSecond: 20
   staminaRecoveryDelay: 1.5
+  currentDeathCount: 0
   SoundPower: 10
   criticalChanceBonus: 0
   criticalDamageBonus: 0.5
@@ -78422,7 +78424,7 @@ MonoBehaviour:
     m_Bits: 0
   eyePoint: {fileID: 963595129}
   attackRange: 3
-  attackDamage: 1
+  attackDamage: 200
   attackCooldown: 0.5
   attackDuration: 0.5
   attackPoint: {fileID: 1671328509}

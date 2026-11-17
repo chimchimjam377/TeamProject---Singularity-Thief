@@ -53,9 +53,90 @@ MonoBehaviour:
     cgPrefab: {fileID: 0}
     cgAnimationStateName: 
     hideCharactersWhenShowingCG: 0
-    speakerName: 
-    dialogueText: "\uC548\uB155  \uD558\uC2E0\uAC00\uC694?  \uB9CC\uC774  \uB180\uB7AC\uC8E0..? 
-      \uC559\uC559\uD55C  \uD558\uB8E8  \uBCF4\uB0B4      "
+    speakerName: ???
+    dialogueText: "\uC138\uC0C1\uC5D0 \uAC1C\uB4E4\uC774 \uB9CE\uC774 \uBCF4\uC785\uB2C8\uB2E4.\n\uB4E4\uD310
+      \uBCF4\uB2E4\uB294 \uC8FC\uC778\uC744 \uBC14\uB77C\uBCF4\uB294  \"\uAC1C\" 
+      \uB9D0\uC785\uB2C8\uB2E4. "
     hasSpeakerCharacter: 0
     speakerSlot: 0
-    typingSound: {fileID: 8300000, guid: 599b41fc41c5c72418b57d2460ad4144, type: 3}
+    typingSound: {fileID: 8300000, guid: 8b025bdadd49bc746a345629dadcaa9b, type: 3}
+  - stepType: 5
+    backgroundSprite: {fileID: -43504878, guid: e6bafb2c3ccd361438057be498ec0ac5, type: 3}
+    characterSlot: 0
+    characterPrefab: {fileID: 0}
+    characterAnimationStateName: 
+    flipHorizontal: 0
+    cgPrefab: {fileID: 0}
+    cgAnimationStateName: 
+    hideCharactersWhenShowingCG: 0
+    speakerName: ???
+    dialogueText: "\uADF8\uB7F0 \uAC1C\uB4E4\uC740 \uB4E4\uD310\uC744 \uB3CC\uBCF4\uC9C0
+      \uBABB\uD569\uB2C8\uB2E4.\n\uADF8\uB7EC\uB2E4 \uD669\uBB34\uC9C0\uAC00 \uB418\uC5C8\uC744
+      \uB54C\n\uC790\uAE30 \uC790\uC2E0\uC774 \uC5B4\uB838\uC744 \uB54C \uB6F0\uB180\uC558\uB358
+      \uB4E4\uD310\uC744 \uB208\uC55E\uC5D0 \uADF8\uB7EC\uB0B4\uBA70\n\uB367\uCE60\uC744
+      \uD558\uAE30 \uC2DC\uC791\uD569\uB2C8\uB2E4."
+    hasSpeakerCharacter: 0
+    speakerSlot: 0
+    typingSound: {fileID: 8300000, guid: 8b025bdadd49bc746a345629dadcaa9b, type: 3}
+  - stepType: 5
+    backgroundSprite: {fileID: -43504878, guid: e6bafb2c3ccd361438057be498ec0ac5, type: 3}
+    characterSlot: 0
+    characterPrefab: {fileID: 0}
+    characterAnimationStateName: 
+    flipHorizontal: 0
+    cgPrefab: {fileID: 0}
+    cgAnimationStateName: 
+    hideCharactersWhenShowingCG: 0
+    speakerName: ???
+    dialogueText: "\uADF8\uB807\uAC8C \uB2E4\uC2DC \uD55C \uBC88 \uC8FC\uC778\uC744
+      \uD5A5\uD558\uC5EC \uCDA9\uC131\uC744 \uC0AC\uB791\uC744 \uD558\uAE30 \uC2DC\uC791\uD569\uB2C8\uB2E4.
+      \uADF8\uB7F0\uB370\n\uADF8 \uB4E4\uD310\uC744 \uAC00\uAFB8\uC5B4 \uC904 \uC218
+      \uC788\uB358 \uC790\uB294 \uC8FC\uC778\uC774 \uC544\uB2CC\uAC00\uC694..?\n\uC8FC\uC778\uC744
+      \uB04C\uACE0 \uAC00\uC11C \uB4E4\uD310\uC744 \uD5A5\uD574 \uC9D6\uC744 \uC218
+      \uC788\uB358 \uC790\uB294 \uAC1C\uAC00 \uC544\uB2CC\uAC00\uC694..?"
+    hasSpeakerCharacter: 0
+    speakerSlot: 0
+    typingSound: {fileID: 8300000, guid: 8b025bdadd49bc746a345629dadcaa9b, type: 3}
+  - stepType: 5
+    backgroundSprite: {fileID: -43504878, guid: e6bafb2c3ccd361438057be498ec0ac5, type: 3}
+    characterSlot: 0
+    characterPrefab: {fileID: 0}
+    characterAnimationStateName: 
+    flipHorizontal: 0
+    cgPrefab: {fileID: 0}
+    cgAnimationStateName: 
+    hideCharactersWhenShowingCG: 0
+    speakerName: ???
+    dialogueText: "\uADF8\uB807\uAE30\uC5D0 \uAC1C\uAC00 \uC5C6\uB294 \uC800\uB294
+      \uC2AC\uD37C \uD569\uB2C8\uB2E4.."
+    hasSpeakerCharacter: 0
+    speakerSlot: 0
+    typingSound: {fileID: 8300000, guid: 8b025bdadd49bc746a345629dadcaa9b, type: 3}
+  - stepType: 3
+    backgroundSprite: {fileID: -43504878, guid: e6bafb2c3ccd361438057be498ec0ac5, type: 3}
+    characterSlot: 0
+    characterPrefab: {fileID: 0}
+    characterAnimationStateName: 
+    flipHorizontal: 0
+    cgPrefab: {fileID: -2253911629886400664, guid: 35b701af7e5c0dd4d88d94ed138810e6, type: 3}
+    cgAnimationStateName: Case01
+    hideCharactersWhenShowingCG: 1
+    speakerName: ???
+    dialogueText: 
+    hasSpeakerCharacter: 0
+    speakerSlot: 0
+    typingSound: {fileID: 8300000, guid: 8b025bdadd49bc746a345629dadcaa9b, type: 3}
+  - stepType: 5
+    backgroundSprite: {fileID: -43504878, guid: e6bafb2c3ccd361438057be498ec0ac5, type: 3}
+    characterSlot: 0
+    characterPrefab: {fileID: 0}
+    characterAnimationStateName: 
+    flipHorizontal: 0
+    cgPrefab: {fileID: -2253911629886400664, guid: 35b701af7e5c0dd4d88d94ed138810e6, type: 3}
+    cgAnimationStateName: Case01
+    hideCharactersWhenShowingCG: 1
+    speakerName: ???
+    dialogueText: "\uC74C... \uB2F9\uD669 \uC2A4\uB7EC\uC6CC\uC9C4\uB2E4."
+    hasSpeakerCharacter: 0
+    speakerSlot: 0
+    typingSound: {fileID: 8300000, guid: 8b025bdadd49bc746a345629dadcaa9b, type: 3}

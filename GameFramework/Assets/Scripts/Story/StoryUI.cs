@@ -47,6 +47,16 @@ public class StoryUI : MonoBehaviour
 
     public bool IsTyping => typingCoroutine != null;
 
+
+
+    [Header("타이핑 피치 설정")]
+
+    [Range(0.5f, 2f)]
+    [SerializeField] private float typingPitch = 1f;
+
+    [Range(0f, 0.5f)]
+    [SerializeField] private float pitchVariation = 0.08f;
+
     // =====================================
     // 캐릭터 강조 설정
     // =====================================
@@ -522,59 +532,44 @@ public class StoryUI : MonoBehaviour
     // =====================================
 
     private IEnumerator TypewriterRoutine(
-        AudioClip typingSound,
-        int totalCharacters)
+    AudioClip typingSound,
+    int totalCharacters)
     {
-        float elapsedTime = 0f;
+        float interval = 1f / Mathf.Max(1f, charactersPerSecond);
 
-        int displayedCharacters = 0;
         int soundCharacterCount = 0;
-
-        float speed = Mathf.Max(1f, charactersPerSecond);
 
         int soundInterval = Mathf.Max(1, charactersPerSound);
 
-        while (displayedCharacters < totalCharacters)
+        for (int i = 0; i < totalCharacters; i++)
         {
-            elapsedTime += Time.unscaledDeltaTime;
+            // 한 글자씩 출력
+            dialogueText.maxVisibleCharacters = i + 1;
 
-            int targetCharacters = Mathf.Min(
-                totalCharacters,
-                Mathf.FloorToInt(elapsedTime * speed)
-            );
+            char currentCharacter =
+                dialogueText.textInfo.characterInfo[i].character;
 
-            while (displayedCharacters < targetCharacters)
+            // 공백은 효과음 카운트에서 제외
+            if (!char.IsWhiteSpace(currentCharacter))
             {
-                displayedCharacters++;
+                soundCharacterCount++;
 
-                dialogueText.maxVisibleCharacters =
-                    displayedCharacters;
-
-                char currentCharacter =
-                    dialogueText.textInfo.characterInfo[
-                        displayedCharacters - 1
-                    ].character;
-
-                // 공백에는 효과음을 재생하지 않음
-                if (!char.IsWhiteSpace(currentCharacter))
+                if (soundCharacterCount >= soundInterval)
                 {
-                    soundCharacterCount++;
-
-                    if (soundCharacterCount >= soundInterval)
-                    {
-                        PlayTypingSound(typingSound);
-                        soundCharacterCount = 0;
-                    }
+                    PlayTypingSound(typingSound);
+                    soundCharacterCount = 0;
                 }
             }
 
-            if (displayedCharacters < totalCharacters)
-                yield return null;
+            // 다음 글자까지 대기
+            if (i < totalCharacters - 1)
+            {
+                yield return new WaitForSecondsRealtime(interval);
+            }
         }
 
         typingCoroutine = null;
 
-        // 타이핑이 끝나면 다음 표시 활성화
         SetNextIndicator(true);
     }
 
@@ -582,6 +577,21 @@ public class StoryUI : MonoBehaviour
     {
         if (clip == null || typingAudioSource == null)
             return;
+
+        // 이전 효과음이 재생 중이면 중복 재생하지 않음
+        if (typingAudioSource.isPlaying)
+            return;
+
+        float randomPitch = Random.Range(
+            -pitchVariation,
+            pitchVariation
+        );
+
+        typingAudioSource.pitch = Mathf.Clamp(
+            typingPitch + randomPitch,
+            0.5f,
+            2f
+        );
 
         typingAudioSource.PlayOneShot(
             clip,

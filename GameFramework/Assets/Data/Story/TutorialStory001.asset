@@ -27,7 +27,7 @@ MonoBehaviour:
     hasSpeakerCharacter: 0
     speakerSlot: 0
     typingSound: {fileID: 0}
-  - stepType: 0
+  - stepType: 2
     backgroundSprite: {fileID: -43504878, guid: e6bafb2c3ccd361438057be498ec0ac5, type: 3}
     characterSlot: 0
     characterPrefab: {fileID: 0}
@@ -37,7 +37,25 @@ MonoBehaviour:
     cgAnimationStateName: 
     hideCharactersWhenShowingCG: 0
     speakerName: 
-    dialogueText: 
+    dialogueText: "\uC789 \uC774\uC774\uC774 \uC789\uC559\uC544\uC544\uC559 \u314F\u314F
+      \u314F   \u314F\u314F\u314F \u314F\u314F \u314F \u314F \u314F \u314F\u314F
+      \u314F \u314F \u314F\u314F \u314F \u314F \u314F \u314F \u314F \u314F\u314F
+      \u314F \u314F \u314F\u314F \u314F \u314F"
     hasSpeakerCharacter: 0
     speakerSlot: 0
-    typingSound: {fileID: 0}
+    typingSound: {fileID: 8300000, guid: 599b41fc41c5c72418b57d2460ad4144, type: 3}
+  - stepType: 5
+    backgroundSprite: {fileID: -43504878, guid: e6bafb2c3ccd361438057be498ec0ac5, type: 3}
+    characterSlot: 0
+    characterPrefab: {fileID: 0}
+    characterAnimationStateName: 
+    flipHorizontal: 0
+    cgPrefab: {fileID: 0}
+    cgAnimationStateName: 
+    hideCharactersWhenShowingCG: 0
+    speakerName: 
+    dialogueText: "\uC548\uB155  \uD558\uC2E0\uAC00\uC694?  \uB9CC\uC774  \uB180\uB7AC\uC8E0..? 
+      \uC559\uC559\uD55C  \uD558\uB8E8  \uBCF4\uB0B4      "
+    hasSpeakerCharacter: 0
+    speakerSlot: 0
+    typingSound: {fileID: 8300000, guid: 599b41fc41c5c72418b57d2460ad4144, type: 3}

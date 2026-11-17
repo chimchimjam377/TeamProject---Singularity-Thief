@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Wall
   - boss
+  - SpawnPoint
   layers:
   - Default
   - TransparentFX

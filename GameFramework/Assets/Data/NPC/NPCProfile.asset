@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efef654de6aa3b949a784fe1fdb09464, type: 3}
   m_Name: NPCProfile
   m_EditorClassIdentifier: Assembly-CSharp::NPCProfile
-  npcName: fuck
-  factionName: fck
+  npcName: "\uC2DC\uC2A4"
+  factionName: "\uB300\uC7A5\uC7A5\uC774"
   displaySprite: {fileID: -4232187473028495849, guid: d0015ece755dbe94a8ab391079b78a4c, type: 3}
   portraitSprite: {fileID: -4232187473028495849, guid: d0015ece755dbe94a8ab391079b78a4c, type: 3}
   dialogueLines:
-  - "\uC774\uC774\uC774\uC789\uC774\uC774\uC774\uC789"
-  - "\uC57C\uC591\uC57C\uC57C\uC591"
-  - "\uC73C\u3161\u3147\uC73C\uC73C\uC73C"
+  - "\uC548\uB155! \uB09C \uC2DC\uC2A4\uB77C\uACE0 \uD574!"
+  - "\uB098\uB294 \uB300\uC7A5\uC7A5\uC774\uC57C"
+  - "\uB10C \uB204\uAD6C\uB2C8?"

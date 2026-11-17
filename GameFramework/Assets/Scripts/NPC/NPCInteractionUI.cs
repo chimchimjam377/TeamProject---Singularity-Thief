@@ -35,6 +35,11 @@ public class NPCInteractionUI : MonoBehaviour
     {
         if (npc == null || npc.Profile == null)
             return;
+            
+        if (promptRoot == null || infoPanelRoot == null)
+            return;
+
+
 
         currentTarget = npc;
 
@@ -55,14 +60,15 @@ public class NPCInteractionUI : MonoBehaviour
     {
         currentTarget = null;
 
-        promptRoot.gameObject.SetActive(false);
-        infoPanelRoot.SetActive(false);
+        if (promptRoot != null)
+            promptRoot.gameObject.SetActive(false);
+        if (infoPanelRoot != null)
+            infoPanelRoot.SetActive(false);
     }
 
     private void LateUpdate()
     {
-        if (currentTarget == null ||
-            mainCamera == null)
+        if (currentTarget == null || mainCamera == null || promptRoot == null || canvas == null)
             return;
 
         Vector3 screenPosition =

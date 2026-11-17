@@ -2495,8 +2495,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4aeefdf09ec866d4f9847081723d1a99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  baseSceneName: BaseScene
-  firstBattleScene: 
+  baseSceneName: Tutorial001
+  firstBattleScene: Tutorial001
   respawnDelay: 1.5
 --- !u!4 &319675446
 Transform:
@@ -4441,9 +4441,9 @@ GameObject:
   - component: {fileID: 773622713}
   - component: {fileID: 773622715}
   - component: {fileID: 773622711}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Enemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5528,7 +5528,7 @@ GameObject:
   - component: {fileID: 960917450}
   m_Layer: 0
   m_Name: Sp
-  m_TagString: Untagged
+  m_TagString: SpawnPoint
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7015,7 +7015,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3305699638692984101, guid: 39f9befba5aee7542a89659c1c4e3ac6, type: 3}
   m_PrefabInstance: {fileID: 6518028175280019866}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1950377419}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f83868d4435b8804b9a6271d936882ed, type: 3}
@@ -7026,7 +7026,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1221587581235489831, guid: 39f9befba5aee7542a89659c1c4e3ac6, type: 3}
   m_PrefabInstance: {fileID: 6518028175280019866}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1950377419}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a49d59cd76cbf0c4dadd6900e8a1c864, type: 3}
@@ -37246,7 +37246,7 @@ GameObject:
   - component: {fileID: 1937889729}
   - component: {fileID: 1937889728}
   m_Layer: 0
-  m_Name: GameObject (2)
+  m_Name: NPCInteractionUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -37339,6 +37339,27 @@ RectTransform:
   m_AnchoredPosition: {x: 2.5, y: 0}
   m_SizeDelta: {x: -5, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1950377419 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5703359231926450836, guid: 39f9befba5aee7542a89659c1c4e3ac6, type: 3}
+  m_PrefabInstance: {fileID: 6518028175280019866}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1950377431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1950377419}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1bcaefb8979c63478e05e36c715b75b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerRespawn
+  spawnPoint: {fileID: 960917450}
+  respawnDelay: 1
+  mainCamera: {fileID: 2009987605}
+  cameraOffset: {x: 0, y: 0, z: -10}
 --- !u!1 &1954937540
 GameObject:
   m_ObjectHideFlags: 0
@@ -37818,7 +37839,7 @@ GameObject:
   - component: {fileID: 2030099731}
   - component: {fileID: 2030099732}
   m_Layer: 0
-  m_Name: GameObject (1)
+  m_Name: TutoBoss
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -38771,7 +38792,10 @@ PrefabInstance:
     - {fileID: 6064241713379342057, guid: 39f9befba5aee7542a89659c1c4e3ac6, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5703359231926450836, guid: 39f9befba5aee7542a89659c1c4e3ac6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1950377431}
   m_SourcePrefab: {fileID: 100100000, guid: 39f9befba5aee7542a89659c1c4e3ac6, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

@@ -7,6 +7,7 @@ TagManager:
   - Wall
   - boss
   - SpawnPoint
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -20,7 +21,7 @@ TagManager:
   - player
   - boss
   - NPC
-  - 
+  - Enemy
   - 
   - 
   - 

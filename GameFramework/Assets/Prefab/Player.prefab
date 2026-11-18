@@ -530,7 +530,6 @@ GameObject:
   - component: {fileID: 6026856457773569763}
   - component: {fileID: 4607652135944266040}
   - component: {fileID: 5006474322314935388}
-  - component: {fileID: 6064241713379342057}
   - component: {fileID: 8606783046480756218}
   - component: {fileID: 1221587581235489831}
   - component: {fileID: 3305699638692984101}
@@ -684,7 +683,7 @@ MonoBehaviour:
   attackHitbox: {fileID: 897732248808307174}
   comboSequence: {fileID: 3305699638692984101}
   attackMovementController: {fileID: 1551856781492710343}
-  playerStats: {fileID: 6064241713379342057}
+  playerStats: {fileID: 7478619333386642152}
   visualRoot: {fileID: 12547247461237010}
   idleAnimatorStateName: Idle
   attackStateEntryTimeout: 0.75
@@ -725,36 +724,6 @@ CapsuleCollider2D:
   m_Offset: {x: -0.019705772, y: 0.004410088}
   m_Size: {x: 0.73896205, y: 1.9437517}
   m_Direction: 0
---- !u!114 &6064241713379342057
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5703359231926450836}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 463195d97150a40d2a22a6b678c04577, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
-  baseLevel: 1
-  baseMaxHealth: 100
-  baseAttackBonus: 0
-  healthIncreasePerLevel: 20
-  attackIncreasePerLevel: 5
-  currentLevel: 0
-  maxHealth: 100
-  currentAttackBonus: 0
-  maxStamina: 100
-  staminaRecoveryPerSecond: 20
-  staminaRecoveryDelay: 1.5
-  currentDeathCount: 0
-  SoundPower: 10
-  criticalChanceBonus: 0
-  criticalDamageBonus: 110
-  slashDamageBonus: 0
-  pierceDamageBonus: 0
-  bluntDamageBonus: 0
 --- !u!114 &8606783046480756218
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -785,7 +754,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerUpgrades
   library: {fileID: 11400000, guid: b2e02a94edd97b043940fdd45711040f, type: 2}
-  playerStats: {fileID: 6064241713379342057}
+  playerStats: {fileID: 0}
   currencyItemId: Ba
   upgrades:
   - part: 0

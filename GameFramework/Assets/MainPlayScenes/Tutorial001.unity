@@ -1260,7 +1260,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.5168722, g: 1, b: 0.042452812, a: 1}
     m_PressedColor: {r: 1, g: 0.5330188, b: 0.5330188, a: 1}
     m_SelectedColor: {r: 0.52063507, g: 1, b: 0.2783019, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 0, g: 1, b: 0.14934134, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -1300,7 +1300,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StaminaBarUI
   staminaSlider: {fileID: 228995957}
   staminaText: {fileID: 1237029420}
-  playerStats: {fileID: 0}
+  playerStats: {fileID: 1950377433}
 --- !u!1 &264205747
 GameObject:
   m_ObjectHideFlags: 0
@@ -8191,7 +8191,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 789038482}
   m_HandleRect: {fileID: 789038481}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -37360,6 +37360,17 @@ MonoBehaviour:
   respawnDelay: 1
   mainCamera: {fileID: 2009987605}
   cameraOffset: {x: 0, y: 0, z: -10}
+--- !u!114 &1950377433 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7478619333386642152, guid: 39f9befba5aee7542a89659c1c4e3ac6, type: 3}
+  m_PrefabInstance: {fileID: 6518028175280019866}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1950377419}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 463195d97150a40d2a22a6b678c04577, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
 --- !u!1 &1954937540
 GameObject:
   m_ObjectHideFlags: 0
@@ -38763,11 +38774,11 @@ PrefabInstance:
     - target: {fileID: 1221587581235489831, guid: 39f9befba5aee7542a89659c1c4e3ac6, type: 3}
       propertyPath: playerStats
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1950377433}
     - target: {fileID: 4607652135944266040, guid: 39f9befba5aee7542a89659c1c4e3ac6, type: 3}
       propertyPath: playerStats
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1950377433}
     - target: {fileID: 5703359231926450836, guid: 39f9befba5aee7542a89659c1c4e3ac6, type: 3}
       propertyPath: m_Name
       value: Player
@@ -38788,8 +38799,7 @@ PrefabInstance:
       propertyPath: damagePanel
       value: 
       objectReference: {fileID: 926485230}
-    m_RemovedComponents:
-    - {fileID: 6064241713379342057, guid: 39f9befba5aee7542a89659c1c4e3ac6, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:

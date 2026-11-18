@@ -29,6 +29,17 @@ public class PlayerStats : MonoBehaviour, IDamageable
     [Min(0f)]
     [SerializeField] private float staminaRecoveryDelay = 1.5f;
 
+
+    // 런 시작 시점의 스탯 저장
+    private float initialMaxStamina;
+
+    private float initialCriticalChanceBonus;
+    private float initialCriticalDamageBonus;
+
+    private float initialSlashDamageBonus;
+    private float initialPierceDamageBonus;
+    private float initialBluntDamageBonus;
+
     private int currentHealth;
     private float currentStamina;
     private float staminaRecoveryTimer;
@@ -133,6 +144,19 @@ public class PlayerStats : MonoBehaviour, IDamageable
         playerState = GetComponent<PlayerState>();
         playerGuard = GetComponent<PlayerGuard>();
 
+
+        // 초기 스탯 저장
+        initialMaxStamina = maxStamina;
+
+        initialCriticalChanceBonus = criticalChanceBonus;
+        initialCriticalDamageBonus = criticalDamageBonus;
+
+        initialSlashDamageBonus = slashDamageBonus;
+        initialPierceDamageBonus = pierceDamageBonus;
+        initialBluntDamageBonus = bluntDamageBonus;
+
+        
+
         ResetStats();
     }
 
@@ -187,6 +211,22 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
         currentHealth = MaxHealth;
         currentStamina = MaxStamina;
+
+        maxStamina = initialMaxStamina;
+
+        // 크리티컬 초기화
+        criticalChanceBonus = initialCriticalChanceBonus;
+        criticalDamageBonus = initialCriticalDamageBonus;
+
+        // 공격 유형 피해 보너스 초기화
+        slashDamageBonus = initialSlashDamageBonus;
+        pierceDamageBonus = initialPierceDamageBonus;
+        bluntDamageBonus = initialBluntDamageBonus;
+
+        // 스태미나 회복 타이머 초기화
+        staminaRecoveryTimer = 0f;
+
+
         NotifyStaminaChanged();
 
         if (playerState != null)

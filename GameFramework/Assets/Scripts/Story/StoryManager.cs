@@ -186,9 +186,7 @@ public class StoryManager : MonoBehaviour
                     return;
 
                 case StoryStepType.EndStory:
-
-                    FinishStory();
-
+                    EndStory(step.NextSceneName);
                     return;
             }
         }
@@ -220,5 +218,22 @@ public class StoryManager : MonoBehaviour
     public void StopStory()
     {
         FinishStory();
+    }
+
+
+
+    private void EndStory(string nextSceneName)
+    {
+        isPlaying = false;
+        waitingForInput = false;
+
+        // 스토리 UI 종료
+        storyUI.Close();
+
+        // 다음 씬이 지정되어 있다면 이동
+        if (!string.IsNullOrEmpty(nextSceneName))
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene(nextSceneName);
+        }
     }
 }

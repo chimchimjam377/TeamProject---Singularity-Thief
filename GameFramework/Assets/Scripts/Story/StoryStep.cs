@@ -55,6 +55,11 @@ public class StoryStep
     [Header("타이핑 효과음")]
     [SerializeField] private AudioClip typingSound;
 
+    [Header("스토리 종료 및 씬 전환")]
+    [SerializeField] private string nextSceneName;
+
+    public string NextSceneName => nextSceneName;
+
     public StoryStepType StepType => stepType;
 
     public Sprite BackgroundSprite => backgroundSprite;

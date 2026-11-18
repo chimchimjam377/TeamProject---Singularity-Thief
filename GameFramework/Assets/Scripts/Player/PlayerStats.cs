@@ -440,15 +440,9 @@ public class PlayerStats : MonoBehaviour, IDamageable
             rb.angularVelocity = 0f;
         }
 
-        // GameManager를 통해 스탯 초기화 및 거점 복귀 실행
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.OnPlayerDeath();
-        }
-        else
-        {
+       
             gameObject.SetActive(false);
-        }
+        
     }
 
     public void ResetDeathCount()

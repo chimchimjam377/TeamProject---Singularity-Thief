@@ -2495,9 +2495,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4aeefdf09ec866d4f9847081723d1a99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  baseSceneName: Tutorial001
-  firstBattleScene: Tutorial001
-  respawnDelay: 1.5
 --- !u!4 &319675446
 Transform:
   m_ObjectHideFlags: 0
@@ -8566,7 +8563,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 789038482}
   m_HandleRect: {fileID: 789038481}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

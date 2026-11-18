@@ -270,7 +270,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -182401668, guid: d759ad869d2b15d49859a72d1b3d48a4, type: 3}
+  m_Sprite: {fileID: 112443155, guid: 8686dbc98a217f447a3e54c10db6d98f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -667,7 +667,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -67, y: -73}
+  m_AnchoredPosition: {x: -73, y: -595}
   m_SizeDelta: {x: 90, y: 90}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &903508176
@@ -805,6 +805,34 @@ PrefabInstance:
       propertyPath: m_AnchorMin.x
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4891798625997359446, guid: de325b5c38e9ee148aeac3366d750bd9, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4891798625997359446, guid: de325b5c38e9ee148aeac3366d750bd9, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4891798625997359446, guid: de325b5c38e9ee148aeac3366d750bd9, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4891798625997359446, guid: de325b5c38e9ee148aeac3366d750bd9, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4891798625997359446, guid: de325b5c38e9ee148aeac3366d750bd9, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4891798625997359446, guid: de325b5c38e9ee148aeac3366d750bd9, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: BGMFade, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 4891798625997359446, guid: de325b5c38e9ee148aeac3366d750bd9, type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 5071396881520620658, guid: de325b5c38e9ee148aeac3366d750bd9, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -908,7 +936,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 9063398401680287547, guid: de325b5c38e9ee148aeac3366d750bd9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1965643054}
   m_SourcePrefab: {fileID: 100100000, guid: de325b5c38e9ee148aeac3366d750bd9, type: 3}
 --- !u!224 &1068926072 stripped
 RectTransform:
@@ -1088,7 +1119,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 316, y: -54}
+  m_AnchoredPosition: {x: 1302, y: -54}
   m_SizeDelta: {x: 320, y: 90}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1172226990
@@ -1487,7 +1518,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 795, y: -54}
+  m_AnchoredPosition: {x: 1305, y: -197}
   m_SizeDelta: {x: 320, y: 90}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1539951554
@@ -1828,6 +1859,36 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!1 &1965643051 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9063398401680287547, guid: de325b5c38e9ee148aeac3366d750bd9, type: 3}
+  m_PrefabInstance: {fileID: 1068926071}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1965643053 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4891798625997359446, guid: de325b5c38e9ee148aeac3366d750bd9, type: 3}
+  m_PrefabInstance: {fileID: 1068926071}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1965643051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
+--- !u!114 &1965643054
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1965643051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8ebb7c14e1a0ec44a9e9c2d3b352b3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SimpleVolumeSlider
+  bgmSource: {fileID: 1364580253}
+  bgmSlider: {fileID: 1965643053}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

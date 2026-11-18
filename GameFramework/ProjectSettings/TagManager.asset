@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Wall
   - boss
+  - SpawnPoint
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -18,8 +20,8 @@ TagManager:
   - ClimbableWall
   - player
   - boss
-  - 
-  - 
+  - NPC
+  - Enemy
   - 
   - 
   - 

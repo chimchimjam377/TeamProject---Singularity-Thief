@@ -34,7 +34,6 @@ public class DummyEnemy : MonoBehaviour, IDamageable
     [Header("Player Detection")]
     [SerializeField] private Transform player;
     [SerializeField] private float detectionRange = 8f;
-    // 추적 해제 범위(loseTargetRange)는 무한 추적을 위해 사용하지 않게 됨
 
     // =========================================================
     // Line Of Sight
@@ -45,19 +44,20 @@ public class DummyEnemy : MonoBehaviour, IDamageable
     [SerializeField] private Transform eyePoint;
 
     // =========================================================
-    // Attack (새로 추가됨)
+    // Attack
     // =========================================================
     [Header("Attack")]
     [SerializeField] private float attackRange = 1.5f;       // 공격 사거리
     [SerializeField] private int attackDamage = 10;          // 공격 데미지
     [SerializeField] private float attackCooldown = 2f;      // 공격 쿨타임
     [SerializeField] private float attackDuration = 0.5f;    // 공격(정지) 지속 시간
-    [SerializeField] private Transform attackPoint;          // 히트박스 중심점 (자식 오브젝트로 생성 필요)
-    [SerializeField] private float attackRadius = 0.5f;      // 히트박스 반경
-    [SerializeField] private LayerMask playerLayer;          // 플레이어 레이어 (Player 지정 필요)
+    [SerializeField] private Transform attackPoint;          // 히트박스 중심점
+    [SerializeField] private float attackRadius = 0.8f;      // 히트박스 반경 (기존 0.5 -> 0.8로 소폭 상향)
+    [SerializeField] private LayerMask playerLayer;          // 플레이어 레이어
 
     private float lastAttackTime = -999f;
     private float attackTimer;
+    private float initialAttackPointX; // [추가] 초기 공격 포인트 X좌표 저장
 
     // =========================================================
     // Visual & Drop
@@ -79,6 +79,19 @@ public class DummyEnemy : MonoBehaviour, IDamageable
     {
         if (rb == null)
             rb = GetComponent<Rigidbody2D>();
+
+        // [추가] 인스펙터에서 Player를 안 넣었더라도 태그로 자동 탐색
+        if (player == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null) player = playerObj.transform;
+        }
+
+        // [추가] AttackPoint의 초기 X 위치 기억
+        if (attackPoint != null)
+        {
+            initialAttackPointX = Mathf.Abs(attackPoint.localPosition.x);
+        }
 
         currentHealth = maxHealth;
         patrolStartPosition = transform.position;
@@ -104,6 +117,8 @@ public class DummyEnemy : MonoBehaviour, IDamageable
 
         if (isChasing)
         {
+            if (player == null) return;
+
             float distance = Vector2.Distance(transform.position, player.position);
 
             // 공격 사거리 안이고, 쿨타임이 지났다면 공격 시작
@@ -113,7 +128,6 @@ public class DummyEnemy : MonoBehaviour, IDamageable
             }
             else
             {
-                // 공격 사거리를 벗어나면 다시 추적
                 ChasePlayer();
             }
         }
@@ -124,26 +138,17 @@ public class DummyEnemy : MonoBehaviour, IDamageable
     }
 
     // =========================================================
-    // Player Detection (무한 추적으로 수정됨)
+    // Player Detection
     // =========================================================
     private void CheckPlayerDetection()
     {
         if (player == null) return;
-
-        // 한 번 추적을 시작했다면 더 이상 감지 범위를 검사하지 않음 (무한 추적)
         if (isChasing) return;
 
         float distance = Vector2.Distance(transform.position, player.position);
-
         if (distance > detectionRange) return;
 
-        if (!requireLineOfSight)
-        {
-            StartChasing();
-            return;
-        }
-
-        if (CanSeePlayer())
+        if (!requireLineOfSight || CanSeePlayer())
         {
             StartChasing();
         }
@@ -168,7 +173,7 @@ public class DummyEnemy : MonoBehaviour, IDamageable
     }
 
     // =========================================================
-    // Attack Actions (새로 추가됨)
+    // Attack Actions (보강됨)
     // =========================================================
     private void StartAttack()
     {
@@ -178,15 +183,49 @@ public class DummyEnemy : MonoBehaviour, IDamageable
         // 그 자리에 멈춤
         rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
 
-        // 플레이어가 바라보는 방향에 히트박스 판정
-        Collider2D hitPlayer = Physics2D.OverlapCircle(attackPoint.position, attackRadius, playerLayer);
+        // 공격 시 플레이어 쪽을 바라보도록 방향 보정
+        if (player != null)
+        {
+            int dir = (player.position.x >= transform.position.x) ? 1 : -1;
+            SetVisualDirection(dir);
+        }
+
+        // 1차 판정: AttackPoint 기반 히트박스 판정
+        Vector2 hitOrigin = attackPoint != null ? (Vector2)attackPoint.position : (Vector2)transform.position;
+        Collider2D hitPlayer = Physics2D.OverlapCircle(hitOrigin, attackRadius, playerLayer);
+
         if (hitPlayer != null)
         {
-            IDamageable damageable = hitPlayer.GetComponentInParent<IDamageable>();
-            if (damageable != null)
-            {
-                damageable.TakeDamage(attackDamage, gameObject);
-            }
+            ApplyDamageToTarget(hitPlayer.gameObject);
+            return;
+        }
+
+        // 2차 판정(안전장치): 히트박스나 레이어 설정 오차로 빗나갔을 경우, 사거리 내 플레이어 직접 타격
+        if (player != null && Vector2.Distance(transform.position, player.position) <= attackRange + 0.2f)
+        {
+            ApplyDamageToTarget(player.gameObject);
+        }
+        else
+        {
+            Debug.LogWarning("DummyEnemy : 공격을 시도했으나 사거리 내에 플레이어가 감지되지 않았습니다.");
+        }
+    }
+
+    // [추가] 대상(자식/부모 포함)에서 IDamageable을 찾아 데미지를 전달하는 통합 함수
+    private void ApplyDamageToTarget(GameObject target)
+    {
+        IDamageable damageable = target.GetComponent<IDamageable>();
+        if (damageable == null) damageable = target.GetComponentInParent<IDamageable>();
+        if (damageable == null) damageable = target.GetComponentInChildren<IDamageable>();
+
+        if (damageable != null)
+        {
+            damageable.TakeDamage(attackDamage, gameObject);
+            Debug.Log($"DummyEnemy : {target.name}에게 {attackDamage} 데미지 적중!");
+        }
+        else
+        {
+            Debug.LogError($"DummyEnemy : {target.name} 오브젝트에 IDamageable을 상속받은 스크립트가 없습니다!");
         }
     }
 
@@ -221,7 +260,6 @@ public class DummyEnemy : MonoBehaviour, IDamageable
 
         float direction = player.position.x - transform.position.x;
 
-        // 너무 가까우면 이동 멈춤
         if (Mathf.Abs(direction) < 0.05f)
         {
             rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
@@ -231,23 +269,30 @@ public class DummyEnemy : MonoBehaviour, IDamageable
         float moveDirection = Mathf.Sign(direction);
         rb.linearVelocity = new Vector2(moveDirection * chaseSpeed, rb.linearVelocity.y);
 
-        if (moveDirection > 0) SetVisualDirection(1);
-        else SetVisualDirection(-1);
+        SetVisualDirection(moveDirection > 0 ? 1 : -1);
     }
 
     private void FlipVisual()
     {
-        if (patrolDirection > 0) SetVisualDirection(1);
-        else SetVisualDirection(-1);
+        SetVisualDirection(patrolDirection > 0 ? 1 : -1);
     }
 
     private void SetVisualDirection(int direction)
     {
-        if (visual == null) return;
+        if (visual != null)
+        {
+            Vector3 scale = visual.localScale;
+            scale.x = Mathf.Abs(scale.x) * direction;
+            visual.localScale = scale;
+        }
 
-        Vector3 scale = visual.localScale;
-        scale.x = Mathf.Abs(scale.x) * direction;
-        visual.localScale = scale;
+        // [추가] AttackPoint가 Visual의 자식이 아니더라도 몬스터 방향에 맞춰 위치 반전
+        if (attackPoint != null && (visual == null || !attackPoint.IsChildOf(visual)))
+        {
+            Vector3 pointPos = attackPoint.localPosition;
+            pointPos.x = initialAttackPointX * direction;
+            attackPoint.localPosition = pointPos;
+        }
     }
 
     // =========================================================
@@ -283,11 +328,10 @@ public class DummyEnemy : MonoBehaviour, IDamageable
     }
 
     // =========================================================
-    // Gizmos (공격 히트박스 그리기 추가)
+    // Gizmos
     // =========================================================
     private void OnDrawGizmosSelected()
     {
-        // 순찰
         Gizmos.color = Color.yellow;
         Vector3 startPosition = Application.isPlaying ? (Vector3)patrolStartPosition : transform.position;
         Vector3 left = startPosition + Vector3.left * patrolDistance;
@@ -296,22 +340,18 @@ public class DummyEnemy : MonoBehaviour, IDamageable
         Gizmos.DrawWireSphere(left, 0.2f);
         Gizmos.DrawWireSphere(right, 0.2f);
 
-        // 감지
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
 
-        // 시야
         if (eyePoint != null && player != null)
         {
             Gizmos.color = Color.cyan;
             Gizmos.DrawLine(eyePoint.position, player.position);
         }
 
-        // 공격 사거리
-        Gizmos.color = new Color(1f, 0.5f, 0f); // 주황색
+        Gizmos.color = new Color(1f, 0.5f, 0f);
         Gizmos.DrawWireSphere(transform.position, attackRange);
 
-        // 히트박스 영역 표시
         if (attackPoint != null)
         {
             Gizmos.color = Color.red;

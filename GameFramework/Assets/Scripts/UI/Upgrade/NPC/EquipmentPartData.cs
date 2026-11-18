@@ -10,6 +10,10 @@ public class EquipmentPartData : ScriptableObject
     [Header("UI 표시 정보")]
     public string partName;     // 예: 머리, 왼팔
 
+    // 💡 [추가됨] 툴팁 오류를 해결하기 위한 '현재 단계(레벨)' 변수 추가
+    [Header("현재 상태")]
+    public int level = 0;
+
     [Header("1레벨업 당 스탯 증가량")]
     [Tooltip("체력 증가량")] public int healthPerLevel;
     [Tooltip("스태미나 증가량")] public float staminaPerLevel;

@@ -5347,7 +5347,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EscMenuManager
   escMenuPanel: {fileID: 1906974265}
-  hubSceneName: Tutorial001
+  hubSceneName: Hub
   titleSceneName: Title
 --- !u!4 &917350647
 Transform:

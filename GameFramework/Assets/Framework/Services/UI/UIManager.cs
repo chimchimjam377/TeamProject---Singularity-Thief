@@ -21,6 +21,20 @@ namespace GameFramework.Services
 
         public int OpenPopupCount => _popupStack.Count;
 
+        public static UIManager Instance { get; private set; }
+
+         private void Awake()
+        {
+           if (Instance == null)
+           {
+              Instance = this;
+              DontDestroyOnLoad(gameObject);
+           }
+           else if (Instance != this)
+           {
+              Destroy(gameObject);
+           }
+        }
         /// <summary>토스트 등 팝업 스택 밖 UI를 얹을 수 있는 루트 캔버스.</summary>
         public RectTransform CanvasRoot => (RectTransform)_rootCanvas.transform;
 

@@ -12352,7 +12352,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 463195d97150a40d2a22a6b678c04577, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
+  baseLevel: 1
+  baseMaxHealth: 100
+  baseAttackBonus: 0
+  healthIncreasePerLevel: 20
+  attackIncreasePerLevel: 5
+  currentLevel: 0
   maxHealth: 100
+  currentAttackBonus: 0
   maxStamina: 100
   staminaRecoveryPerSecond: 20
   staminaRecoveryDelay: 1.5

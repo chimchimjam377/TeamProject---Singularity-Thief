@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 
 public class EscMenuManager : MonoBehaviour
 {
+    public static EscMenuManager Instance { get; private set; }
+
     [Header("UI 패널 연결")]
     [SerializeField] private GameObject escMenuPanel;
 
@@ -12,6 +14,20 @@ public class EscMenuManager : MonoBehaviour
     [SerializeField] private string titleSceneName = "Title"; // 타이틀 씬 이름 추가
 
     private bool isMenuOpen = false;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
 
     private void Start()
     {

@@ -1,10 +1,16 @@
+using GameFramework.Services;
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class DialogueUI : MonoBehaviour
 {
+
+    public static DialogueUI Instance { get; private set; }
+
+   
+
     [Header("¥Î»≠ UI")]
     [SerializeField] private GameObject dialoguePanel;
 
@@ -26,6 +32,18 @@ public class DialogueUI : MonoBehaviour
     {
         dialoguePanel.SetActive(false);
         IsOpen = false;
+
+
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
     }
 
     public void BeginDialogue(

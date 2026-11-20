@@ -4,6 +4,8 @@ using TMPro;
 
 public class NPCInteractionUI : MonoBehaviour
 {
+    public static NPCInteractionUI Instance { get; private set; }
+
     [Header("Canvas")]
     [SerializeField] private Canvas canvas;
     [SerializeField] private Camera mainCamera;
@@ -25,6 +27,17 @@ public class NPCInteractionUI : MonoBehaviour
 
     private void Awake()
     {
+
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
         if (mainCamera == null)
             mainCamera = Camera.main;
 

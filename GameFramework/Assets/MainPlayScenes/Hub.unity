@@ -819,7 +819,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ComboEditorUI
   attackLibrary: {fileID: 11400000, guid: f6f8aa11474f3ae44bd8a56f011ab99a, type: 2}
-  comboSequence: {fileID: 0}
+  comboSequence: {fileID: 1084374386}
   optionCardPrefab: {fileID: 7809107627150385930, guid: c04b61343a9bf2e448a1444c9ff46835, type: 3}
   optionContent: {fileID: 788479059}
   comboSlotPrefab: {fileID: -2971630558286080459, guid: e28394dead10e1e45bc45feff5c44875, type: 3}
@@ -3500,6 +3500,7 @@ GameObject:
   - component: {fileID: 537542300}
   - component: {fileID: 537542302}
   - component: {fileID: 537542301}
+  - component: {fileID: 537542303}
   m_Layer: 5
   m_Name: DialoguePanel
   m_TagString: Untagged
@@ -3567,6 +3568,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 537542299}
   m_CullTransparentMesh: 1
+--- !u!114 &537542303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 537542299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8d50d26524e13847a7a59781cb116c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueUI
+  dialoguePanel: {fileID: 537542299}
+  speakerNameText: {fileID: 1970193022}
+  dialogueText: {fileID: 508172179}
+  portraitImage: {fileID: 766876879}
 --- !u!1 &544996544
 GameObject:
   m_ObjectHideFlags: 0
@@ -6599,9 +6616,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 2048
   interactKey: 102
-  interactionUI: {fileID: 0}
-  dialogueUI: {fileID: 0}
-  dialogueCamera: {fileID: 0}
+  interactionUI: {fileID: 1555730698}
+  dialogueUI: {fileID: 537542303}
+  dialogueCamera: {fileID: 1774312999}
   playerControlsToDisable: []
 --- !u!114 &1084374384
 MonoBehaviour:
@@ -9138,6 +9155,7 @@ GameObject:
   - component: {fileID: 1555730695}
   - component: {fileID: 1555730697}
   - component: {fileID: 1555730696}
+  - component: {fileID: 1555730698}
   m_Layer: 5
   m_Name: NPCInfoPanel
   m_TagString: Untagged
@@ -9205,6 +9223,26 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1555730694}
   m_CullTransparentMesh: 1
+--- !u!114 &1555730698
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1555730694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38dae8e3e546cdf4b8cf897c92766e48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCInteractionUI
+  canvas: {fileID: 3540651}
+  mainCamera: {fileID: 1774312995}
+  promptRoot: {fileID: 1257614290}
+  promptOffset: {x: 0, y: 1.2, z: 0}
+  infoPanelRoot: {fileID: 1555730694}
+  npcSpriteImage: {fileID: 766876879}
+  factionText: {fileID: 762084840}
+  npcNameText: {fileID: 1848787862}
 --- !u!1 &1570483509
 GameObject:
   m_ObjectHideFlags: 0
@@ -12946,7 +12984,7 @@ GameObject:
   - component: {fileID: 1970193023}
   - component: {fileID: 1970193022}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: Name
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

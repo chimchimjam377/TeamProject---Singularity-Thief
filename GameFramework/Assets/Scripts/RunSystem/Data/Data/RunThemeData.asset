@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e872def02dbd8d4a940f750fc7f5d09, type: 3}
   m_Name: RunThemeData
   m_EditorClassIdentifier: Assembly-CSharp::RunThemeData
-  themeName: 
-  stage2Candidates: []
-  stage3Candidates: []
+  themeName: Limbo
+  stage2Candidates:
+  - {fileID: 11400000, guid: 9c224c37479acb0428655156117aa5e1, type: 2}
+  stage3Candidates:
+  - {fileID: 11400000, guid: dd19e6c3b386a784f8b83f17d16d91d9, type: 2}
   stage4Candidates: []
   shopSceneName: 
   bossSceneName: 

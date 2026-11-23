@@ -56,6 +56,12 @@ public class RunManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
+            Debug.LogWarning(
+                $"[RunManager] 중복 객체 파괴!\n" +
+                $"기존: {Instance.gameObject.scene.name}\n" +
+                $"신규: {gameObject.scene.name}"
+            );
+
             Destroy(gameObject);
             return;
         }
@@ -63,6 +69,23 @@ public class RunManager : MonoBehaviour
         Instance = this;
 
         DontDestroyOnLoad(gameObject);
+
+        Debug.Log(
+            $"[RunManager] 현재 활성 인스턴스: {gameObject.name}\n" +
+            $"Scene: {gameObject.scene.name}\n" +
+            $"Themes 개수: {(themes == null ? 0 : themes.Length)}"
+        );
+
+        if (themes != null)
+        {
+            for (int i = 0; i < themes.Length; i++)
+            {
+                Debug.Log(
+                    $"Themes[{i}]: " +
+                    (themes[i] != null ? themes[i].name : "NULL")
+                );
+            }
+        }
     }
 
     private void OnEnable()
@@ -146,17 +169,49 @@ public class RunManager : MonoBehaviour
     // 랜덤 전투 씬 선택
     private void LoadRandomCombatStage()
     {
-        StageData selectedData =
-            CurrentTheme.GetRandomStageData(CurrentStageNumber);
-
-        if (selectedData == null)
-            return;
+        Debug.Log("[RunManager] 랜덤 스테이지 선택 시작");
 
         Debug.Log(
-            $"현재 테마: {CurrentTheme.ThemeName} / " +
-            $"Stage: {CurrentStageNumber} / " +
-            $"선택된 씬: {selectedData.SceneName}"
+            $"Themes Null: {themes == null}, " +
+            $"Theme Index: {CurrentThemeIndex}, " +
+            $"Stage: {CurrentStageNumber}"
         );
+
+        if (themes == null || themes.Length == 0)
+        {
+            Debug.LogError("RunManager의 Themes가 비어 있습니다.");
+            return;
+        }
+
+        if (CurrentThemeIndex < 0 ||
+            CurrentThemeIndex >= themes.Length)
+        {
+            Debug.LogError("잘못된 Theme Index입니다.");
+            return;
+        }
+
+        RunThemeData theme = themes[CurrentThemeIndex];
+
+        if (theme == null)
+        {
+            Debug.LogError(
+                $"Themes[{CurrentThemeIndex}]가 null입니다."
+            );
+            return;
+        }
+
+        Debug.Log($"현재 테마 확인: {theme.name}");
+
+        StageData selectedData =
+            theme.GetRandomStageData(CurrentStageNumber);
+
+        if (selectedData == null)
+        {
+            Debug.LogError("랜덤 스테이지 데이터가 null입니다.");
+            return;
+        }
+
+        Debug.Log($"선택된 씬: {selectedData.SceneName}");
 
         LoadScene(selectedData.SceneName);
     }

@@ -428,11 +428,11 @@ public class PlayerMovement : MonoBehaviour
         {
             if (rb.linearVelocity.y > 0.1f)
             {
-                ChangeAnimationState("JumpUP");
+                ChangeAnimationState("Jump");
             }
             else if (rb.linearVelocity.y < -0.1f)
             {
-                ChangeAnimationState("Down");
+                ChangeAnimationState("DownSide");
             }
         }
     }

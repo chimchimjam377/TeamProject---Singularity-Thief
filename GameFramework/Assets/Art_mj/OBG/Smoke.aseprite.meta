@@ -36,7 +36,7 @@ ScriptedImporter:
     spriteMeshType: 1
     alignment: 0
     spritePivot: {x: 0.5, y: 0.5}
-    spritePixelsToUnits: 100
+    spritePixelsToUnits: 25
     spriteBorder: {x: 0, y: 0, z: 0, w: 0}
     spriteGenerateFallbackPhysicsShape: 0
     generateCubemap: 6
@@ -101,7 +101,7 @@ ScriptedImporter:
     addShadowCasters: 0
     generateIndividualEvents: 1
     generateSpriteAtlas: 1
-  platformSettingsDirtyTick: 0
+  platformSettingsDirtyTick: 639310580619071097
   singleSpriteImportData:
   - name: 
     originalName: 
@@ -434,8 +434,8 @@ ScriptedImporter:
     layerType: 0
     blendMode: 0
     cells:
-    - name: Frame_0
-      frameIndex: 0
+    - name: Frame_2
+      frameIndex: 2
       additiveSortOrder: 0
       cellRect:
         x: 14
@@ -443,8 +443,8 @@ ScriptedImporter:
         width: 30
         height: 11
       spriteId: a0faa44da8ceba244a7e9d7d4a557676
-    - name: Frame_1
-      frameIndex: 1
+    - name: Frame_3
+      frameIndex: 3
       additiveSortOrder: 0
       cellRect:
         x: 15
@@ -452,8 +452,8 @@ ScriptedImporter:
         width: 27
         height: 13
       spriteId: ce772ad68e63ed340a6589e200cd65e4
-    - name: Frame_2
-      frameIndex: 2
+    - name: Frame_4
+      frameIndex: 4
       additiveSortOrder: 0
       cellRect:
         x: 22
@@ -461,8 +461,8 @@ ScriptedImporter:
         width: 15
         height: 20
       spriteId: 54591a53b7cc65843a2ab18df375bc1a
-    - name: Frame_3
-      frameIndex: 3
+    - name: Frame_5
+      frameIndex: 5
       additiveSortOrder: 0
       cellRect:
         x: 18
@@ -470,8 +470,8 @@ ScriptedImporter:
         width: 28
         height: 30
       spriteId: 6410022723aa2514587c3528fa5d4071
-    - name: Frame_4
-      frameIndex: 4
+    - name: Frame_6
+      frameIndex: 6
       additiveSortOrder: 0
       cellRect:
         x: 16
@@ -479,8 +479,8 @@ ScriptedImporter:
         width: 32
         height: 22
       spriteId: 208c6231d9f4c7f408dda3adde75d55b
-    - name: Frame_5
-      frameIndex: 5
+    - name: Frame_7
+      frameIndex: 7
       additiveSortOrder: 0
       cellRect:
         x: 23
@@ -488,8 +488,8 @@ ScriptedImporter:
         width: 22
         height: 16
       spriteId: 68ffafaaea1797d4ba5cbd2bcaea339c
-    - name: Frame_6
-      frameIndex: 6
+    - name: Frame_9
+      frameIndex: 9
       additiveSortOrder: 0
       cellRect:
         x: 4
@@ -497,8 +497,8 @@ ScriptedImporter:
         width: 52
         height: 16
       spriteId: 197dcda165290bf4baec0939cbc59345
-    - name: Frame_7
-      frameIndex: 7
+    - name: Frame_10
+      frameIndex: 10
       additiveSortOrder: 0
       cellRect:
         x: 2
@@ -506,8 +506,8 @@ ScriptedImporter:
         width: 56
         height: 15
       spriteId: 0036fb609b312754986ad1b097131599
-    - name: Frame_8
-      frameIndex: 8
+    - name: Frame_11
+      frameIndex: 11
       additiveSortOrder: 0
       cellRect:
         x: 0
@@ -515,8 +515,8 @@ ScriptedImporter:
         width: 60
         height: 15
       spriteId: 29a413bbdb8a9fa4d995b09ea2b5cbc7
-    - name: Frame_9
-      frameIndex: 9
+    - name: Frame_12
+      frameIndex: 12
       additiveSortOrder: 0
       cellRect:
         x: 0
@@ -524,8 +524,8 @@ ScriptedImporter:
         width: 61
         height: 17
       spriteId: 8d42b95972e3502458e06493e4a041f3
-    - name: Frame_11
-      frameIndex: 11
+    - name: Frame_14
+      frameIndex: 14
       additiveSortOrder: 0
       cellRect:
         x: 22
@@ -533,8 +533,8 @@ ScriptedImporter:
         width: 20
         height: 20
       spriteId: 99ed8d393127ea04daa8cd742cbed961
-    - name: Frame_12
-      frameIndex: 12
+    - name: Frame_15
+      frameIndex: 15
       additiveSortOrder: 0
       cellRect:
         x: 20
@@ -542,8 +542,8 @@ ScriptedImporter:
         width: 23
         height: 22
       spriteId: 11cfcd2082c2de848a214b5195d95fa1
-    - name: Frame_13
-      frameIndex: 13
+    - name: Frame_16
+      frameIndex: 16
       additiveSortOrder: 0
       cellRect:
         x: 22
@@ -551,8 +551,8 @@ ScriptedImporter:
         width: 20
         height: 20
       spriteId: 34ca4987bc61e044bb328e9ec5f9441e
-    - name: Frame_14
-      frameIndex: 14
+    - name: Frame_17
+      frameIndex: 17
       additiveSortOrder: 0
       cellRect:
         x: 22
@@ -565,7 +565,31 @@ ScriptedImporter:
     tileSetIndex: 0
     parentIndex: -1
   tileSets: []
-  platformSettings: []
+  platformSettings:
+  - name: DefaultTexturePlatform
+    overridden: 0
+    ignorePlatformSupport: 0
+    maxTextureSize: 16384
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    androidETC2FallbackOverride: 0
+  - name: Standalone
+    overridden: 0
+    ignorePlatformSupport: 0
+    maxTextureSize: 16384
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    androidETC2FallbackOverride: 0
   generatePhysicsShape: 0
   secondarySpriteTextures: []
   previousTextureSize: {x: 128, y: 256}

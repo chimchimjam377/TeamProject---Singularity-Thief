@@ -8579,7 +8579,7 @@ GameObject:
   - component: {fileID: 1428594559}
   - component: {fileID: 1428594558}
   - component: {fileID: 1428594557}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: Square (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13086,6 +13086,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player03
       objectReference: {fileID: 0}
+    - target: {fileID: 3626916397498700004, guid: 9c5027bdd194bbc4cb62e1cbe5596ca4, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 856536872543048310, guid: 9c5027bdd194bbc4cb62e1cbe5596ca4, type: 3}
     - target: {fileID: 7878350319992209165, guid: 9c5027bdd194bbc4cb62e1cbe5596ca4, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.71

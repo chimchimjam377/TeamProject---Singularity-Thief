@@ -404,8 +404,32 @@ public class PlayerMovement : MonoBehaviour
 
     private void UpdateAnimations()
     {
+        
+
         if (animator == null)
             return;
+
+        // =================================================
+        // 1. 벽타기
+        // =================================================
+
+        if (isWallClimbing)
+        {
+            if (verticalInput > 0.1f)
+            {
+                ChangeAnimationState("ClimbUP");
+            }
+            else if (verticalInput < -0.1f)
+            {
+                ChangeAnimationState("ClimbDown");
+            }
+
+            return;
+        }
+
+        // =================================================
+        // 2. 특수 행동 상태
+        // =================================================
 
         if (!playerState.Is(PlayerStateType.Normal))
         {
@@ -413,27 +437,36 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        if (isGrounded)
+        // =================================================
+        // 3. 공중 상태
+        // =================================================
+
+        if (!isGrounded)
         {
-            if (Mathf.Abs(moveInput) > 0.1f || Mathf.Abs(rb.linearVelocity.x) > 0.1f)
+            if (rb.linearVelocity.y < -0.1f)
             {
-                ChangeAnimationState("Walk");
+                ChangeAnimationState("Down_side");
             }
-            else
-            {
-                ChangeAnimationState("Idle");
-            }
-        }
-        else
-        {
-            if (rb.linearVelocity.y > 0.1f)
+            else if (rb.linearVelocity.y > 0.1f)
             {
                 ChangeAnimationState("Jump");
             }
-            else if (rb.linearVelocity.y < -0.1f)
-            {
-                ChangeAnimationState("DownSide");
-            }
+
+            return;
+        }
+
+        // =================================================
+        // 4. 지상 상태
+        // =================================================
+
+        if (Mathf.Abs(moveInput) > 0.1f ||
+            Mathf.Abs(rb.linearVelocity.x) > 0.1f)
+        {
+            ChangeAnimationState("Walk");
+        }
+        else
+        {
+            ChangeAnimationState("Idle");
         }
     }
 

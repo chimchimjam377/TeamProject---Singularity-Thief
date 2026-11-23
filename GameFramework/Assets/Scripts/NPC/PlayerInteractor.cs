@@ -27,23 +27,11 @@ public class PlayerInteractor : MonoBehaviour
     private bool controlsLocked;
     private bool[] previousControlStates;
 
-    // [추가] 씬이 재시작(리스폰)되어 UI나 카메라가 파괴되었다면 새 씬의 오브젝트로 자동 재연결
-    private void RebindSceneReferencesIfNeeded()
-    {
-        if (interactionUI == null)
-            interactionUI = FindFirstObjectByType<NPCInteractionUI>();
-
-        if (dialogueUI == null)
-            dialogueUI = FindFirstObjectByType<DialogueUI>();
-
-        if (dialogueCamera == null)
-            dialogueCamera = FindFirstObjectByType<DialogueCameraController>();
-    }
+   
 
     private void Update()
     {
-        // 매 프레임 참조가 끊어졌는지 확인 후 필요시 재연결
-        RebindSceneReferencesIfNeeded();
+        
 
         // 대화 중
         if (dialogueUI != null &&

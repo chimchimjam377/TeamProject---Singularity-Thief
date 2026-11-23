@@ -13,7 +13,7 @@ public class HubStartTrigger : MonoBehaviour
 
         Debug.Log("거점 이탈! 새로운 RUN 시작!");
 
-        RunManager.Instance.StartRun();
+        // RunManager.Instance.StartRun();
     }
 
     private bool HasPlayerTag(Transform target)

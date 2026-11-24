@@ -28,6 +28,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Effects")]
     [SerializeField] private Animator smokeAnimator;
+    [SerializeField] private float effectLifetime = 1f;
 
 
     private float moveInput;
@@ -87,6 +88,15 @@ public class PlayerMovement : MonoBehaviour
             animator = visual.GetComponent<Animator>();
 
         defaultGravityScale = rb.gravityScale;
+
+        if (smokeAnimator == null && visual != null)
+        {
+            Transform smoke = visual.Find("Smoke");
+
+            if (smoke != null)
+                smokeAnimator = smoke.GetComponent<Animator>();
+        }
+
     }
 
 
@@ -507,8 +517,30 @@ public class PlayerMovement : MonoBehaviour
         if (smokeAnimator == null)
             return;
 
-        smokeAnimator.Play(animationName, 0, 0f);
+        // 현재 Smoke 위치에 복제
+        GameObject effect = Instantiate(
+            smokeAnimator.gameObject,
+            smokeAnimator.transform.position,
+            smokeAnimator.transform.rotation
+        );
+
+        // 플레이어와 분리
+        effect.transform.SetParent(null, true);
+
+        // 이펙트 활성화
+        effect.SetActive(true);
+
+        // 애니메이션 재생
+        Animator effectAnimator = effect.GetComponent<Animator>();
+
+        effectAnimator.Play(animationName, 0, 0f);
+
+        // 일정 시간 뒤 삭제
+        Destroy(effect, effectLifetime);
     }
+
+
+
 
     // =========================================================
     // Gizmos

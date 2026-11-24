@@ -7405,6 +7405,7 @@ MonoBehaviour:
   wallClimbSpeed: 15
   playerState: {fileID: 1084374391}
   smokeAnimator: {fileID: 1176264545}
+  effectLifetime: 1
 --- !u!50 &1084374395
 Rigidbody2D:
   serializedVersion: 5

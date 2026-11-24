@@ -2,18 +2,24 @@ using UnityEngine;
 
 public class HubStartTrigger : MonoBehaviour
 {
+    [Header("UI Controller")]
+    [SerializeField]
+    private HubOperationUIController operationUI;
+
     private void OnTriggerExit2D(Collider2D other)
     {
-        // 플레이어 태그 검사
         if (!HasPlayerTag(other.transform))
             return;
 
-        if (RunManager.Instance == null)
+        if (operationUI == null)
+        {
+            Debug.LogError("HubOperationUIController가 연결되지 않았습니다.");
             return;
+        }
 
-        Debug.Log("거점 이탈! 새로운 RUN 시작!");
+        Debug.Log("안전 구역 이탈! 작전 시작 확인 요청");
 
-        // RunManager.Instance.StartRun();
+        operationUI.ShowConfirmPopup();
     }
 
     private bool HasPlayerTag(Transform target)

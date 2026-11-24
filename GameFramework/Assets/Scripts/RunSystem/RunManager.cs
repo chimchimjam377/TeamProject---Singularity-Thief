@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public enum RunPhase
 {
@@ -356,6 +357,66 @@ public class RunManager : MonoBehaviour
     {
         isTransitioning = false;
 
-        Debug.Log($"씬 이동 완료: {scene.name}");
+        Debug.Log($"씬 로드 완료: {scene.name}");
+
+        StartCoroutine(MovePlayerToSpawnPoint(scene));
     }
+
+    private IEnumerator MovePlayerToSpawnPoint(Scene scene)
+    {
+        // 씬 내 오브젝트들의 초기화 대기
+        yield return null;
+
+        if (PlayerStats.Instance == null)
+        {
+            Debug.LogError("[RunManager] PlayerStats를 찾을 수 없습니다.");
+            yield break;
+        }
+
+        StageSpawnPoint spawnPoint = null;
+
+        // 새로 로드된 씬에서 SpawnPoint 찾기
+        foreach (GameObject root in scene.GetRootGameObjects())
+        {
+            spawnPoint = root.GetComponentInChildren<StageSpawnPoint>(true);
+
+            if (spawnPoint != null)
+                break;
+        }
+
+        if (spawnPoint == null)
+        {
+            Debug.LogWarning(
+                $"[RunManager] {scene.name}에 StageSpawnPoint가 없습니다."
+            );
+
+            yield break;
+        }
+
+        Transform playerTransform = PlayerStats.Instance.transform;
+
+        Vector3 spawnPosition = spawnPoint.transform.position;
+
+        Rigidbody2D rb = playerTransform.GetComponent<Rigidbody2D>();
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+
+            rb.position = spawnPosition;
+        }
+        else
+        {
+            playerTransform.position = spawnPosition;
+        }
+
+        // 물리 시스템에 Transform 변경사항 반영
+        Physics2D.SyncTransforms();
+
+        Debug.Log(
+            $"[RunManager] 플레이어 스폰 완료: {scene.name} / {spawnPosition}"
+        );
+    }
+
 }

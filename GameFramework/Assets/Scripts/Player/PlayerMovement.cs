@@ -26,12 +26,18 @@ public class PlayerMovement : MonoBehaviour
     [Header("State")]
     [SerializeField] private PlayerState playerState;
 
+    [Header("Effects")]
+    [SerializeField] private Animator smokeAnimator;
+
+
     private float moveInput;
     private float verticalInput;
 
     private int jumpCount;
 
     private bool isGrounded;
+
+    private bool previousGrounded;
 
     // 공격 전용 이동이 일반 이동을 제어 중인지 여부
     private bool attackMovementActive;
@@ -48,6 +54,8 @@ public class PlayerMovement : MonoBehaviour
 
     public bool IsGrounded => isGrounded;
     public bool IsWallClimbing => isWallClimbing;
+
+
 
     public void SetAttackMovementActive(bool active)
     {
@@ -136,6 +144,15 @@ public class PlayerMovement : MonoBehaviour
         {
             jumpCount = 0;
         }
+
+        
+
+        if (!previousGrounded && isGrounded)
+        {
+            PlayEffect("Down");
+        }
+
+        previousGrounded = isGrounded;
 
         // 중요!
         // 여기서 WallClimbing을 강제로 종료하지 않는다.
@@ -259,6 +276,11 @@ public class PlayerMovement : MonoBehaviour
         );
 
         jumpCount++;
+
+        
+
+        PlayEffect("Up");
+
     }
 
 
@@ -479,6 +501,14 @@ public class PlayerMovement : MonoBehaviour
         currentAnimState = newState;
     }
 
+
+    private void PlayEffect(string animationName)
+    {
+        if (smokeAnimator == null)
+            return;
+
+        smokeAnimator.Play(animationName, 0, 0f);
+    }
 
     // =========================================================
     // Gizmos

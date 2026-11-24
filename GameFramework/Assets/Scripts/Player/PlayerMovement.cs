@@ -449,7 +449,7 @@ public class PlayerMovement : MonoBehaviour
             }
             else if (rb.linearVelocity.y > 0.1f)
             {
-                ChangeAnimationState("Jump");
+                ChangeAnimationState("JumpSide");
             }
 
             return;

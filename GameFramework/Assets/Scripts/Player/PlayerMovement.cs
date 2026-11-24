@@ -1,5 +1,18 @@
 using UnityEngine;
 
+[System.Serializable]
+public class GroundSoundSettings
+{
+    public string groundTag;
+
+    [Header("Footstep")]
+    public AudioClip[] footstepClips;
+
+    [Header("Landing")]
+    public AudioClip landingClip;
+}
+
+
 public class PlayerMovement : MonoBehaviour
 {
     [Header("References")]
@@ -30,6 +43,21 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Animator smokeAnimator;
     [SerializeField] private float effectLifetime = 1f;
 
+    [Header("Sound Effects")]
+    [SerializeField] private AudioSource audioSource;
+
+    [SerializeField] private AudioClip jumpSound;
+    [SerializeField] private AudioClip landingSound;
+
+    [SerializeField] private AudioClip defaultFootstepSound;
+
+    [SerializeField] private float footstepInterval = 0.35f;
+
+    private float footstepTimer;
+    private Collider2D currentGround;
+
+    [SerializeField] private GroundSoundSettings[] groundSounds;
+
 
     private float moveInput;
     private float verticalInput;
@@ -39,6 +67,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isGrounded;
 
     private bool previousGrounded;
+    private bool groundCheckInitialized;
 
     // 공격 전용 이동이 일반 이동을 제어 중인지 여부
     private bool attackMovementActive;
@@ -97,6 +126,9 @@ public class PlayerMovement : MonoBehaviour
                 smokeAnimator = smoke.GetComponent<Animator>();
         }
 
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+
     }
 
 
@@ -113,6 +145,8 @@ public class PlayerMovement : MonoBehaviour
         HandleJump();
 
         UpdateAnimations(); // 애니메이션 상태 업데이트 호출
+
+        UpdateFootsteps(); // 발소리 업데이트
     }
 
 
@@ -144,33 +178,30 @@ public class PlayerMovement : MonoBehaviour
 
     private void CheckGround()
     {
-        isGrounded = Physics2D.OverlapCircle(
+        // Layer를 통해 바닥 감지
+        currentGround = Physics2D.OverlapCircle(
             groundCheck.position,
             groundCheckRadius,
             groundLayer
         );
 
-        if (isGrounded)
-        {
-            jumpCount = 0;
-        }
+        isGrounded = currentGround != null;
 
-        
-
-        if (!previousGrounded && isGrounded)
+        // 공중 -> 지상으로 변경된 순간
+        if (groundCheckInitialized &&
+            !previousGrounded && isGrounded)
         {
+            PlayLandingSound();
             PlayEffect("Down");
         }
 
         previousGrounded = isGrounded;
+        groundCheckInitialized = true;
 
-        // 중요!
-        // 여기서 WallClimbing을 강제로 종료하지 않는다.
-        //
-        // 벽 + 바닥 모서리에서는
-        // Grounded = true
-        // Wall = true
-        // 가 동시에 될 수 있기 때문이다.
+        if (isGrounded)
+        {
+            jumpCount = 0;
+        }
     }
 
 
@@ -265,6 +296,8 @@ public class PlayerMovement : MonoBehaviour
                 jumpForce
             );
 
+            PlayJumpSound();
+
             // 공중에서 다시 더블 점프할 수 있도록
             jumpCount = 0;
 
@@ -287,8 +320,8 @@ public class PlayerMovement : MonoBehaviour
 
         jumpCount++;
 
-        
 
+        PlayJumpSound();
         PlayEffect("Up");
 
     }
@@ -541,6 +574,106 @@ public class PlayerMovement : MonoBehaviour
 
 
 
+    // 점프 효과음
+    private void PlayJumpSound()
+    {
+        if (audioSource == null || jumpSound == null)
+            return;
+
+        audioSource.PlayOneShot(jumpSound);
+    }
+
+
+    // 착지 효과음
+    private void PlayLandingSound()
+    {
+        if (audioSource == null)
+            return;
+
+        GroundSoundSettings sound = GetGroundSound();
+
+        AudioClip clip = landingSound;
+
+        if (sound != null && sound.landingClip != null)
+        {
+            clip = sound.landingClip;
+        }
+
+        if (clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
+    }
+
+    private GroundSoundSettings GetGroundSound()
+    {
+        if (currentGround == null || groundSounds == null)
+            return null;
+
+        foreach (GroundSoundSettings sound in groundSounds)
+        {
+            if (sound == null || string.IsNullOrEmpty(sound.groundTag))
+                continue;
+
+            if (currentGround.CompareTag(sound.groundTag))
+                return sound;
+        }
+
+        return null;
+    }
+
+
+    private void PlayFootstepSound()
+    {
+        if (audioSource == null)
+            return;
+
+        GroundSoundSettings sound = GetGroundSound();
+
+        AudioClip clip = defaultFootstepSound;
+
+        if (sound != null &&
+            sound.footstepClips != null &&
+            sound.footstepClips.Length > 0)
+        {
+            clip = sound.footstepClips[
+                Random.Range(0, sound.footstepClips.Length)
+            ];
+
+            if (clip == null)
+                clip = defaultFootstepSound;
+        }
+
+        if (clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
+    }
+
+    private void UpdateFootsteps()
+    {
+        bool isWalking =
+            isGrounded &&
+            !isWallClimbing &&
+            playerState.Is(PlayerStateType.Normal) &&
+            Mathf.Abs(moveInput) > 0.1f &&
+            Mathf.Abs(rb.linearVelocity.x) > 0.1f &&
+            rb.linearVelocity.y <= 0.1f;
+
+        if (!isWalking)
+        {
+            footstepTimer = 0f;
+            return;
+        }
+
+        footstepTimer += Time.deltaTime;
+
+        if (footstepTimer >= footstepInterval)
+        {
+            PlayFootstepSound();
+            footstepTimer = 0f;
+        }
+    }
 
     // =========================================================
     // Gizmos

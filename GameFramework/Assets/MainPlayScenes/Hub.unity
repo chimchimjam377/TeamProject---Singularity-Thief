@@ -4114,6 +4114,63 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 567029350}
   m_CullTransparentMesh: 1
+--- !u!1001 &576624267
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4419807318943786107, guid: ae0a8cc9e7d0b444895bdc8953a24095, type: 3}
+      propertyPath: m_Name
+      value: Item_Ba_Drop
+      objectReference: {fileID: 0}
+    - target: {fileID: 8696197167164393505, guid: ae0a8cc9e7d0b444895bdc8953a24095, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 6.4593716
+      objectReference: {fileID: 0}
+    - target: {fileID: 8696197167164393505, guid: ae0a8cc9e7d0b444895bdc8953a24095, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.16657782
+      objectReference: {fileID: 0}
+    - target: {fileID: 8696197167164393505, guid: ae0a8cc9e7d0b444895bdc8953a24095, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.62052
+      objectReference: {fileID: 0}
+    - target: {fileID: 8696197167164393505, guid: ae0a8cc9e7d0b444895bdc8953a24095, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8696197167164393505, guid: ae0a8cc9e7d0b444895bdc8953a24095, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8696197167164393505, guid: ae0a8cc9e7d0b444895bdc8953a24095, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8696197167164393505, guid: ae0a8cc9e7d0b444895bdc8953a24095, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8696197167164393505, guid: ae0a8cc9e7d0b444895bdc8953a24095, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8696197167164393505, guid: ae0a8cc9e7d0b444895bdc8953a24095, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8696197167164393505, guid: ae0a8cc9e7d0b444895bdc8953a24095, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: ae0a8cc9e7d0b444895bdc8953a24095, type: 3}
 --- !u!1 &590273879
 GameObject:
   m_ObjectHideFlags: 0
@@ -7642,7 +7699,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeUIManager
   uiPanel: {fileID: 1092512326}
-  playerUpgrades: {fileID: 0}
+  playerUpgrades: {fileID: 1084374387}
   selectedPartNameText: {fileID: 1207293951}
   currentLevelText: {fileID: 100144525}
   costText: {fileID: 1741535733}
@@ -13615,6 +13672,7 @@ GameObject:
   - component: {fileID: 1932840980}
   - component: {fileID: 1932840979}
   - component: {fileID: 1932840978}
+  - component: {fileID: 1932840981}
   m_Layer: 5
   m_Name: Head
   m_TagString: Untagged
@@ -13736,6 +13794,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1932840976}
   m_CullTransparentMesh: 1
+--- !u!114 &1932840981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1932840976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cebe8fefbcaee5b458f7c08f2c3f6d1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradeHoverButton
+  partData: {fileID: 11400000, guid: cf42abb8a842f9948a60f2faf8da4634, type: 2}
+  onHoverEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1933109885
 GameObject:
   m_ObjectHideFlags: 0
@@ -15323,3 +15397,4 @@ SceneRoots:
   - {fileID: 1276705172}
   - {fileID: 446230034}
   - {fileID: 1199598225}
+  - {fileID: 576624267}

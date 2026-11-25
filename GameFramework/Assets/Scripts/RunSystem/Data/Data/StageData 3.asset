@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a92ae81a6e1600c498e84fd396fb02e1, type: 3}
   m_Name: StageData 3
   m_EditorClassIdentifier: Assembly-CSharp::StageData
-  stageDisplayName: 
-  sceneName: 
+  stageDisplayName: "\uD06C\uC544\uC544\uC545"
+  sceneName: Stage2_B

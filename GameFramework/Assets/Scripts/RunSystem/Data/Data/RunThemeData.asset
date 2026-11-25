@@ -17,6 +17,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9c224c37479acb0428655156117aa5e1, type: 2}
   stage3Candidates:
   - {fileID: 11400000, guid: dd19e6c3b386a784f8b83f17d16d91d9, type: 2}
-  stage4Candidates: []
+  stage4Candidates:
+  - {fileID: 11400000, guid: 92c1cc17a6de91b43822e79c53b30522, type: 2}
   shopSceneName: 
   bossSceneName: 

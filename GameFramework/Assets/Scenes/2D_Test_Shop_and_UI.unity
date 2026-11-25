@@ -10650,7 +10650,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &458028760
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12247,6 +12247,14 @@ MonoBehaviour:
     m_Bits: 128
   wallClimbSpeed: 15
   playerState: {fileID: 963595132}
+  smokeAnimator: {fileID: 0}
+  effectLifetime: 1
+  audioSource: {fileID: 0}
+  jumpSound: {fileID: 0}
+  landingSound: {fileID: 0}
+  defaultFootstepSound: {fileID: 0}
+  footstepInterval: 0.35
+  groundSounds: []
 --- !u!50 &963595136
 Rigidbody2D:
   serializedVersion: 5

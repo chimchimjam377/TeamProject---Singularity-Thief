@@ -155,7 +155,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
         initialPierceDamageBonus = pierceDamageBonus;
         initialBluntDamageBonus = bluntDamageBonus;
 
-        
+
 
         ResetStats();
     }
@@ -334,7 +334,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
         if (attack == null) return 0;
 
         float typeBonus = GetAttackTypeDamageBonus(attack.Type);
-        
+
         // 기본 무기 공격력 + 레벨업 추가 공격력(currentAttackBonus) 반영
         float finalDamage = (attack.Damage + currentAttackBonus) * (1f + typeBonus);
 
@@ -460,6 +460,20 @@ public class PlayerStats : MonoBehaviour, IDamageable
         }
     }
 
+    // 광역 레이저 전용 피해: 닷지 무적 및 가드 무시
+    public void TakeUnavoidableDamage(int damage)
+    {
+        if (isDead || damage <= 0) return;
+
+        currentHealth = Mathf.Max(currentHealth - damage, 0);
+        Debug.Log($"Unavoidable Damage: {damage} / HP: {currentHealth}/{MaxHealth}");
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
     private void Die()
     {
         if (isDead) return;
@@ -484,9 +498,9 @@ public class PlayerStats : MonoBehaviour, IDamageable
             rb.angularVelocity = 0f;
         }
 
-       
-            gameObject.SetActive(false);
-        
+
+        gameObject.SetActive(false);
+
     }
 
     public void ResetDeathCount()

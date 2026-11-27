@@ -59,7 +59,6 @@ public class ComboEditorUI : MonoBehaviour
     {
         if (comboSequence != null)
         {
-            // Awake 호출 순서에 의존하지 않도록 초기화 보장
             comboSequence.Initialize();
 
             comboSequence.OnSequenceChanged +=
@@ -68,6 +67,22 @@ public class ComboEditorUI : MonoBehaviour
 
         RollOffers();
         RefreshAll();
+
+        // 첫 번째 공격의 상세 정보를 기본으로 표시
+        if (comboSequence != null && comboSequence.Count > 0)
+        {
+            attackDetailPanel?.Show(
+                comboSequence.GetAttackAt(0)
+            );
+        }
+        else if (currentOffers.Count > 0)
+        {
+            attackDetailPanel?.Show(currentOffers[0]);
+        }
+        else
+        {
+            attackDetailPanel?.Clear();
+        }
     }
 
     private void OnDisable()

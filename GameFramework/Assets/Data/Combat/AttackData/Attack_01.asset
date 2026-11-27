@@ -119,6 +119,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  description: "\uD718\uB450\uB978\uB2E4."
+  previewImage: {fileID: 8319875622175376862, guid: d2c041e5a0132d641afe1a9210426365, type: 3}
   criticalChance: 0.5
   movementType: 0
   movementStart: 0.2

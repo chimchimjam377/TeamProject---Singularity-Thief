@@ -76,6 +76,13 @@ public class AttackDefinition : ScriptableObject
     private AnimationCurve hitboxOffsetY =
         AnimationCurve.Linear(0f, 0f, 1f, 0f);
 
+    [Header("Attack Description")]
+    [TextArea(2, 5)]
+    [SerializeField] private string description;
+
+    [Tooltip("공격 상세 정보에 표시할 이미지")]
+    [SerializeField] private Sprite previewImage;
+
 
     [Header("Critical")]
     [Tooltip("이 공격의 기본 크리티컬 확률")]
@@ -176,6 +183,11 @@ public class AttackDefinition : ScriptableObject
     public float TargetStopDistance => targetStopDistance;
 
     public LayerMask TargetLayers => targetLayers;
+
+
+    public string Description => description;
+    public Sprite PreviewImage => previewImage;
+
 
     // =========================================
     // Inspector 값 검증

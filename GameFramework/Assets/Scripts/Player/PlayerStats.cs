@@ -349,15 +349,59 @@ public class PlayerStats : MonoBehaviour, IDamageable
         return Mathf.Max(0, Mathf.RoundToInt(finalDamage));
     }
 
-    private float GetAttackTypeDamageBonus(AttackType type)
+    // 공격 유형별 피해 증가율 반환
+    public float GetAttackTypeDamageBonus(AttackType type)
     {
         switch (type)
         {
-            case AttackType.Slash: return SlashDamageBonus;
-            case AttackType.Pierce: return PierceDamageBonus;
-            case AttackType.Blunt: return BluntDamageBonus;
-            default: return 0f;
+            case AttackType.Slash:
+                return slashDamageBonus;
+
+            case AttackType.Pierce:
+                return pierceDamageBonus;
+
+            case AttackType.Blunt:
+                return bluntDamageBonus;
+
+            default:
+                return 0f;
         }
+    }
+
+    // 플레이어 보정까지 적용한 최종 크리티컬 확률
+    public float GetFinalCriticalChance(AttackDefinition attack)
+    {
+        if (attack == null)
+            return 0f;
+
+        return Mathf.Clamp01(
+            attack.CriticalChance + criticalChanceBonus
+        );
+    }
+
+    // 플레이어 피해 보너스를 적용한 일반 피해량
+    public int GetNormalAttackDamage(AttackDefinition attack)
+    {
+        if (attack == null)
+            return 0;
+
+        float damage = attack.Damage *
+            (1f + GetAttackTypeDamageBonus(attack.Type));
+
+        return Mathf.Max(0, Mathf.RoundToInt(damage));
+    }
+
+    // 크리티컬이 발생했을 때의 예상 피해량
+    public int GetCriticalAttackDamage(AttackDefinition attack)
+    {
+        if (attack == null)
+            return 0;
+
+        float damage = attack.Damage *
+            (1f + GetAttackTypeDamageBonus(attack.Type)) *
+            (1f + criticalDamageBonus);
+
+        return Mathf.Max(0, Mathf.RoundToInt(damage));
     }
 
     public void AddCriticalChance(float amount)

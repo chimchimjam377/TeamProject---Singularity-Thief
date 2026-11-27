@@ -17,6 +17,10 @@ public class ComboEditorUI : MonoBehaviour
     [SerializeField] private ComboSlotUI comboSlotPrefab;
     [SerializeField] private Transform comboContent;
 
+    [Header("공격 상세 정보")]
+    [SerializeField] private AttackDetailPanelUI attackDetailPanel;
+
+
     [Header("버튼")]
     [SerializeField] private Button rerollButton;
     [SerializeField] private Button deleteSelectedButton;
@@ -172,6 +176,13 @@ public class ComboEditorUI : MonoBehaviour
         if (comboSequence == null || attack == null)
             return;
 
+        // 선택한 공격의 상세 정보 표시
+        if (attackDetailPanel != null)
+        {
+            attackDetailPanel.Show(attack);
+        }
+
+
         int targetIndex = selectedSlotIndex;
         bool success;
 
@@ -239,6 +250,17 @@ public class ComboEditorUI : MonoBehaviour
 
         selectedSlotIndex = index;
 
+        if (index < comboSequence.Count)
+        {
+            attackDetailPanel?.Show(
+                comboSequence.GetAttackAt(index)
+            );
+        }
+        else
+        {
+            attackDetailPanel?.Clear();
+        }
+
         if (index == comboSequence.Count)
         {
             SetHint("공격 카드를 선택하면 이 슬롯에 추가됩니다.");
@@ -266,6 +288,24 @@ public class ComboEditorUI : MonoBehaviour
         {
             SetHint("공격을 콤보에서 제거했습니다.");
             // OnSequenceChanged가 UI를 갱신한다.
+
+            if (comboSequence.Count > 0)
+            {
+                int previewIndex = Mathf.Min(
+                    index,
+                    comboSequence.Count - 1
+                );
+
+                attackDetailPanel?.Show(
+                    comboSequence.GetAttackAt(previewIndex)
+                );
+            }
+            else
+            {
+                attackDetailPanel?.Clear();
+            }
+
+
         }
         else
         {
@@ -301,6 +341,9 @@ public class ComboEditorUI : MonoBehaviour
         {
             SetHint("공격 순서를 변경했습니다.");
             // OnSequenceChanged가 UI를 갱신한다.
+
+            attackDetailPanel?.Show(comboSequence.GetAttackAt(toIndex));
+
         }
         else
         {

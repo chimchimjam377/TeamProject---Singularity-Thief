@@ -8495,7 +8495,7 @@ MonoBehaviour:
   effectLifetime: 1
   audioSource: {fileID: 1084374398}
   jumpSound: {fileID: 8300000, guid: fcbaf164018fc614a9729400cf40f9de, type: 3}
-  landingSound: {fileID: 8300000, guid: 623ad07c146cedd4db6b902fd1612618, type: 3}
+  landingSound: {fileID: 8300000, guid: 6ad0cf00f050bee41a2dee098475dc78, type: 3}
   defaultFootstepSound: {fileID: 8300000, guid: 062aac8f0463d7945a5a16732efbea51, type: 3}
   footstepInterval: 0.35
   groundSounds:
@@ -8504,7 +8504,7 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 7ca5a9710db4327439c9f8cb8204615e, type: 3}
     - {fileID: 8300000, guid: 14ae706fef2303e4cb71112dbd5d250b, type: 3}
     - {fileID: 8300000, guid: b995bc1775ea83b4b8f861763e9a1424, type: 3}
-    landingClip: {fileID: 8300000, guid: 304f2bf2228cba94e91cd22803e54bcf, type: 3}
+    landingClip: {fileID: 8300000, guid: 0909de896e9029541b92ae05fe15e4b6, type: 3}
 --- !u!50 &1084374395
 Rigidbody2D:
   serializedVersion: 5

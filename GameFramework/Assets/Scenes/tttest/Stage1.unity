@@ -200,6 +200,9 @@ GameObject:
   - component: {fileID: 193956961}
   - component: {fileID: 193956962}
   - component: {fileID: 193956963}
+  - component: {fileID: 193956966}
+  - component: {fileID: 193956965}
+  - component: {fileID: 193956964}
   m_Layer: 0
   m_Name: GroundEnemy
   m_TagString: Untagged
@@ -345,6 +348,75 @@ MonoBehaviour:
   - {fileID: 1012496060}
   patrolMode: 0
   waitTime: 1.5
+--- !u!114 &193956964
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193956956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8652eca840f7d14e989308b790e53ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameFramework.Enemy.EnemyVision
+  brain: {fileID: 193956966}
+  visual: {fileID: 1252021296}
+  playerTag: Player
+  viewAngle: 120
+--- !u!58 &193956965
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193956956}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 0.5
+--- !u!114 &193956966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193956956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4f13443e9c990a40b3a82c62215315d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameFramework.Enemy.EnemyBrain
+  movement: {fileID: 193956962}
+  patrol: {fileID: 193956963}
+  loseSightDelay: 1
+  targetRefreshDistance: 0.15
+  investigateDuration: 2
 --- !u!1 &424418744
 GameObject:
   m_ObjectHideFlags: 0
